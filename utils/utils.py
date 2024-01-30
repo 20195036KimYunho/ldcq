@@ -10,6 +10,11 @@ import torch.distributions.normal as Normal
 import ipdb
 import random
 import pickle
+import os
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
 
 def reparameterize(mean, std):
     eps = torch.normal(torch.zeros(mean.size()).cuda(), torch.ones(mean.size()).cuda())
@@ -59,7 +64,8 @@ def chunks(obs,actions,H,stride):
 
 
 def get_dataset(env_name, horizon, stride, test_split=0.2, append_goals=False, get_rewards=False, separate_test_trajectories=False, cum_rewards=True):
-    dataset_file = 'data/'+env_name+'.pkl'
+    dataset_file = parent_folder+'/data/'+env_name+'.pkl'
+    
     with open(dataset_file, "rb") as f:
         dataset = pickle.load(f)
 

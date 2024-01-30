@@ -1,3 +1,11 @@
+import os
+
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder) 
+
 from argparse import ArgumentParser
 import os
 from comet_ml import Experiment
@@ -178,8 +186,8 @@ if __name__ == "__main__":
     parser.add_argument('--test_split', type=float, default=0.2)
     parser.add_argument('--sample_z', type=int, default=0)
 
-    parser.add_argument('--checkpoint_dir', type=str, default='checkpoints/')
-    parser.add_argument('--dataset_dir', type=str, default='data/')
+    parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
+    parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data/')
     parser.add_argument('--skill_model_filename', type=str)
     parser.add_argument('--append_goals', type=int, default=0)
 

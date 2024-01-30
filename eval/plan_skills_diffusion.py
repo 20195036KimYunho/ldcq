@@ -1,5 +1,12 @@
-from argparse import ArgumentParser
 import os
+
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder) 
+
+from argparse import ArgumentParser
 
 import numpy as np
 import torch
@@ -21,7 +28,7 @@ from models.skill_model import SkillModel
 
 import multiprocessing as mp
 
-ANTMAZE = plt.imread('img/maze-large.png')
+ANTMAZE = plt.imread(parent_folder+'/img/maze-large.png')
 
 def visualize_states(state_0, states, best_state):
     plt.imshow(ANTMAZE, extent=[-6, 42, -6, 30])
@@ -376,7 +383,7 @@ def evaluate(args):
     skill_model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename))['model_state_dict'])
     skill_model.eval()
 
-    envs = [gym.make(args.env) for _ in range(args.num_parallel_envs)]
+    envs = [gym.make(args.env,render_height=128,render_width=128) for _ in range(args.num_parallel_envs)]
 
     if not args.append_goals:
       #state_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_states.npy"), allow_pickle=True)
@@ -464,10 +471,10 @@ if __name__ == "__main__":
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_evals', type=int, default=100)
     parser.add_argument('--num_parallel_envs', type=int, default=1)
-    parser.add_argument('--checkpoint_dir', type=str, default='checkpoints')
-    parser.add_argument('--q_checkpoint_dir', type=str, default='q_checkpoints')
+    parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints')
+    parser.add_argument('--q_checkpoint_dir', type=str, default=parent_folder+'/q_checkpoints')
     parser.add_argument('--q_checkpoint_steps', type=int, default=0)
-    parser.add_argument('--dataset_dir', type=str, default='data')
+    parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data')
     parser.add_argument('--skill_model_filename', type=str)
     parser.add_argument('--append_goals', type=int, default=0)
 

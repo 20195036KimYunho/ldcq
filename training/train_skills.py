@@ -1,3 +1,11 @@
+import os
+
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder) 
+
 from comet_ml import Experiment
 import numpy as np
 import torch
@@ -9,7 +17,6 @@ import torch.distributions.normal as Normal
 from models.skill_model import SkillModel
 import h5py
 from utils.utils import get_dataset
-import os
 import pickle
 import argparse
 
@@ -79,7 +86,7 @@ parser.add_argument('--normalize_latent', type=int, default=0)
 parser.add_argument('--append_goals', type=int, default=0)
 args = parser.parse_args()
 
-batch_size = 128
+batch_size = 64
 
 h_dim = 256
 z_dim = args.z_dim
@@ -103,27 +110,32 @@ conditional_prior = args.conditional_prior # True
 
 env_name = args.env_name
 
-dataset_file = 'data/'+env_name+'.pkl'
+dataset_file = parent_folder+'/data/'+env_name+'.pkl'
 with open(dataset_file, "rb") as f:
 	dataset = pickle.load(f)
 
-checkpoint_dir = 'checkpoints/'
+checkpoint_dir = parent_folder+'/checkpoints/'
 states = dataset['observations'] #[:10000]
 #next_states = dataset['next_observations']
 actions = dataset['actions'] #[:10000]
 
-N = states.shape[0]
+print("State:",states.shape)
+print("action:",actions.shape)
+N = states.shape[0] #N: 전체 데이터셋 갯수
 
-state_dim = states.shape[1] + args.append_goals * 2
+state_dim = states.shape[1] + args.append_goals * 2 # goal의 (x,y)추가
 a_dim = actions.shape[1]
 
 N_train = int((1-test_split)*N)
-N_test = N - N_train
+N_test = N - N_train 
 
 dataset = get_dataset(env_name, H, stride, test_split, get_rewards=args.get_rewards, separate_test_trajectories=args.separate_test_trajectories, append_goals=args.append_goals)
 
 obs_chunks_train = dataset['observations_train']
 action_chunks_train = dataset['actions_train']
+print("State:",obs_chunks_train.shape)
+print("action:",action_chunks_train.shape)
+
 if test_split>0.0:
 	obs_chunks_test = dataset['observations_test']
 	action_chunks_test = dataset['actions_test']
@@ -136,12 +148,12 @@ experiment = Experiment(api_key = '', project_name = '')
 model = SkillModel(state_dim,a_dim,z_dim,h_dim,horizon=H,a_dist=a_dist,beta=beta,fixed_sig=None,encoder_type=encoder_type,state_decoder_type=state_decoder_type,policy_decoder_type=policy_decoder_type,per_element_sigma=per_element_sigma, conditional_prior=conditional_prior, train_diffusion_prior=train_diffusion_prior, normalize_latent=args.normalize_latent).cuda()
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
 
-if load_from_checkpoint:
-	PATH = os.path.join(checkpoint_dir,filename+'_best_sT.pth')
-	checkpoint = torch.load(PATH)
-	model.load_state_dict(checkpoint['model_state_dict'])
-	E_optimizer.load_state_dict(checkpoint['E_optimizer_state_dict'])
-	M_optimizer.load_state_dict(checkpoint['M_optimizer_state_dict'])
+# if load_from_checkpoint:
+# 	PATH = os.path.join(checkpoint_dir,filename+'_best_sT.pth')
+# 	checkpoint = torch.load(PATH)
+# 	model.load_state_dict(checkpoint['model_state_dict'])
+# 	E_optimizer.load_state_dict(checkpoint['E_optimizer_state_dict'])
+# 	M_optimizer.load_state_dict(checkpoint['M_optimizer_state_dict'])
 
 experiment.log_parameters({'lr':lr,
 							'h_dim':h_dim,

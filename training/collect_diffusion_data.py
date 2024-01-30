@@ -1,5 +1,11 @@
-from argparse import ArgumentParser
 import os
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder) 
+
+from argparse import ArgumentParser
 
 import gym
 import numpy as np
@@ -19,6 +25,12 @@ def collect_data(args):
     elif 'maze' in args.env:
         state_dim = 4 + args.append_goals * 2
         a_dim = 2
+    elif 'halfcheetah' in args.env:
+        state_dim = 17 + args.append_goals * 2
+        a_dim = 6
+    elif 'walker2d' in args.env:
+        state_dim = 17 + args.append_goals * 2
+        a_dim = 6    
     else:
         raise NotImplementedError
 
@@ -43,7 +55,10 @@ def collect_data(args):
     skill_model.load_state_dict(checkpoint['model_state_dict'])
     skill_model.eval()
 
-    dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals)
+    if 'halfcheetah' in args.env or 'walker2d' in args.env: 
+        dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals,args.get_rewards)
+    else:
+        dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals)
 
     obs_chunks_train = dataset['observations_train']
     action_chunks_train = dataset['actions_train']
@@ -75,11 +90,11 @@ def collect_data(args):
         if args.save_z_dist:
             latent_std_gt[start_idx : end_idx] = output_std.detach().cpu().numpy().squeeze(1)
 
-    np.save('data/' + args.skill_model_filename[:-4] + '_states.npy', states_gt)
-    np.save('data/' + args.skill_model_filename[:-4] + '_latents.npy', latent_gt)
-    np.save('data/' + args.skill_model_filename[:-4] + '_sT.npy', sT_gt)
+    np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_states.npy', states_gt)
+    np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_latents.npy', latent_gt)
+    np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_sT.npy', sT_gt)
     if args.save_z_dist:
-        np.save('data/' + args.skill_model_filename[:-4] + '_latents_std.npy', latent_std_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_latents_std.npy', latent_std_gt)
 
 if __name__ == '__main__':
 
@@ -87,12 +102,13 @@ if __name__ == '__main__':
 
     parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')
     parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--checkpoint_dir', type=str, default='checkpoints')
+    parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints')
     parser.add_argument('--skill_model_filename', type=str)
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--append_goals', type=int, default=0)
     parser.add_argument('--save_z_dist', type=int, default=0)
-
+    parser.add_argument('--get_rewards', type=int, default=1)
+    
     parser.add_argument('--horizon', type=int, default=30)
     parser.add_argument('--stride', type=int, default=1)
     parser.add_argument('--beta', type=float, default=0.05)

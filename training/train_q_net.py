@@ -1,5 +1,12 @@
-from argparse import ArgumentParser
 import os
+
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder) 
+
+from argparse import ArgumentParser
 from comet_ml import Experiment
 
 import gym
@@ -139,7 +146,7 @@ def train(args):
         model.eval()
 
     dqn_agent = DDQN(state_dim = x_shape, z_dim=y_dim, diffusion_prior=model, total_prior_samples=args.total_prior_samples, gamma=args.gamma)
-    dqn_agent.learn(dataload_train=per_buffer if args.per_buffer else dataload_train,
+    dqn_agent.learn(dataload_train=per_buffer if args.per_buffer else dataload_train, n_epochs=args.n_epoch,
         diffusion_model_name=args.skill_model_filename[:-4], cfg_weight=args.cfg_weight, per_buffer = args.per_buffer, batch_size = args.batch_size)
 
 
@@ -161,8 +168,8 @@ if __name__ == "__main__":
     parser.add_argument('--gamma', type=float, default=0.995)
     parser.add_argument('--alpha', type=float, default=0.6)
 
-    parser.add_argument('--checkpoint_dir', type=str, default='checkpoints/')
-    parser.add_argument('--dataset_dir', type=str, default='data/')
+    parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
+    parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data/')
     parser.add_argument('--skill_model_filename', type=str)
 
     parser.add_argument('--do_diffusion', type=int, default=1)

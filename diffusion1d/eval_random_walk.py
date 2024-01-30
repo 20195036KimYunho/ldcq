@@ -1,5 +1,11 @@
-from argparse import ArgumentParser
 import os
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder) 
+
+from argparse import ArgumentParser
 import pickle
 import numpy as np
 import torch

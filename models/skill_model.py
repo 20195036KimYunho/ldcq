@@ -165,7 +165,7 @@ class LowLevelPolicy(nn.Module):
             a_sig:  batch_size x T x a_dim tensor of action standard devs for each t in {0.,,,.T}
         '''
         # tile z along time axis so dimension matches state
-        z_tiled = z.tile([1,state.shape[-2],1]) #not sure about this 
+        z_tiled = z.tile([1,state.shape[-2],1]) #not sure about this// state에 붙이려고 batch_size x T x state_dim형태로 변환
 
         # Concat state and z_tiled
         state_z = torch.cat([state,z_tiled],dim=-1)
@@ -395,7 +395,6 @@ class GRUEncoder(nn.Module):
         s_emb_a = torch.cat([s_emb,actions],dim=-1)
         feats,_ = self.rnn(s_emb_a)
         hn = feats[:,-1:,:]
-
         z_mean = self.mean_layer(hn)
         z_sig = self.sig_layer(hn)
 
@@ -544,7 +543,8 @@ class GenerativeModel(nn.Module):
 
 
 class SkillModel(nn.Module):
-    def __init__(self,state_dim,a_dim,z_dim,h_dim,horizon,a_dist='normal',beta=1.0,fixed_sig=None,encoder_type='gru',state_decoder_type='mlp',policy_decoder_type='mlp',per_element_sigma=True,conditional_prior=True,train_diffusion_prior=False,normalize_latent=False):
+    def __init__(self,state_dim,a_dim,z_dim,h_dim,horizon,a_dist='normal',beta=1.0,fixed_sig=None,encoder_type='gru',state_decoder_type='mlp',policy_decoder_type='mlp',
+                 per_element_sigma=True,conditional_prior=True,train_diffusion_prior=False,normalize_latent=False):
         super(SkillModel, self).__init__()
 
         self.state_dim = state_dim # state dimension

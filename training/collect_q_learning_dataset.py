@@ -1,3 +1,11 @@
+import os
+
+import sys
+
+curr_folder=os.path.abspath(__file__)
+parent_folder=os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder) 
+
 from argparse import ArgumentParser
 import os
 import pickle
@@ -10,7 +18,7 @@ from models.skill_model import SkillModel
 from utils.utils import get_dataset
 
 def collect_data(args):
-    dataset_file = 'data/'+args.env+'.pkl'
+    dataset_file = parent_folder+'/data/'+args.env+'.pkl'
     with open(dataset_file, "rb") as f:
         dataset = pickle.load(f)
 
@@ -75,19 +83,19 @@ def collect_data(args):
             latent_std_gt[start_idx : end_idx] = output_std.detach().cpu().numpy().squeeze(1)
 
     if not args.append_goals:
-        np.save('data/' + args.skill_model_filename[:-4] + '_states.npy', states_gt)
-        np.save('data/' + args.skill_model_filename[:-4] + '_latents.npy', latent_gt)
-        np.save('data/' + args.skill_model_filename[:-4] + '_sT.npy', sT_gt)
-        np.save('data/' + args.skill_model_filename[:-4] + '_rewards.npy', rewards_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_states.npy', states_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_latents.npy', latent_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_sT.npy', sT_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_rewards.npy', rewards_gt)
         if args.save_z_dist:
-            np.save('data/' + args.skill_model_filename[:-4] + '_latents_std.npy', latent_std_gt)
+            np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_latents_std.npy', latent_std_gt)
     else:
-        np.save('data/' + args.skill_model_filename[:-4] + '_goals_states.npy', states_gt)
-        np.save('data/' + args.skill_model_filename[:-4] + '_goals_latents.npy', latent_gt)
-        np.save('data/' + args.skill_model_filename[:-4] + '_goals_sT.npy', sT_gt)
-        np.save('data/' + args.skill_model_filename[:-4] + '_goals_rewards.npy', rewards_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_goals_states.npy', states_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_goals_latents.npy', latent_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_goals_sT.npy', sT_gt)
+        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_goals_rewards.npy', rewards_gt)
         if args.save_z_dist:
-            np.save('data/' + args.skill_model_filename[:-4] + '_goals_latents_std.npy', latent_std_gt)
+            np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_goals_latents_std.npy', latent_std_gt)
 
 
 if __name__ == '__main__':
@@ -96,9 +104,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')
     parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--checkpoint_dir', type=str, default='checkpoints/')
+    parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
     parser.add_argument('--skill_model_filename', type=str)
-    parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--append_goals', type=int, default=0)
     parser.add_argument('--save_z_dist', type=int, default=1)
     parser.add_argument('--cum_rewards', type=int, default=0)
