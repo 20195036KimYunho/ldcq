@@ -49,6 +49,8 @@ def q_policy(diffusion_model,
     if args.state_decoder_type == 'autoregressive':
         state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
         state = state_pred.squeeze(1)
+    elif args.state_decoder_type == 'none':
+        pass
     else:
         state, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim], latent)
 

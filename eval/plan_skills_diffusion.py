@@ -67,6 +67,8 @@ def q_policy(diffusion_model,
     if args.state_decoder_type == 'autoregressive':
         state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
         state = state_pred.squeeze(1)
+    elif args.state_decoder_type == 'none':
+        pass
     else:
         state, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim], latent)
 
@@ -171,6 +173,8 @@ def greedy_policy(
     if args.state_decoder_type == 'autoregressive':
         state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent_0.unsqueeze(1), evaluation=True)
         state[:,:state_dim] = state_pred.squeeze(1)
+    elif args.state_decoder_type == 'none':
+        pass
     else:
         state[:,:state_dim], _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim], latent_0)
 
@@ -180,6 +184,8 @@ def greedy_policy(
         if args.state_decoder_type == 'autoregressive':
             state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
             state[:,:state_dim] = state_pred.squeeze(1)
+        elif args.state_decoder_type == 'none':
+            pass
         else:
             state[:,:state_dim], _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim], latent)
 
@@ -234,6 +240,8 @@ def exhaustive_policy(
     if args.state_decoder_type == 'autoregressive':
         state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent_0.unsqueeze(1), evaluation=True)
         state[:,:state_dim] = state_pred.squeeze(1)
+    elif args.state_decoder_type == 'none':
+        pass
     else:
         state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), latent_0.unsqueeze(1))
         state[:,:state_dim] = state_pred.squeeze(1)

@@ -617,6 +617,7 @@ class SkillModel(nn.Module):
             a_means, a_sigs = self.decoder(states, actions, z_sampled, state_decoder)
             return a_means, a_sigs, z_post_means, z_post_sigs, z_sampled
 
+    # """미사용 코드"""
     def get_E_loss(self,states,actions):
 
         batch_size,T,_ = states.shape
@@ -734,7 +735,7 @@ class SkillModel(nn.Module):
         else:
             return  loss_tot, a_loss, kl_loss, diffusion_loss
 
-
+# """미사용 코드"""
     def get_expected_cost(self, s0, skill_seq, goal_states):
         '''
         s0 is initial state  # batch_size x 1 x s_dim

@@ -86,11 +86,11 @@ parser.add_argument('--normalize_latent', type=int, default=0)
 parser.add_argument('--append_goals', type=int, default=0)
 args = parser.parse_args()
 
-batch_size = 64
+batch_size = 64 #default 128
 
 h_dim = 256
 z_dim = args.z_dim
-lr = args.lr#5e-5
+lr = args.lr #5e-5
 wd = 0.0
 H = args.horizon
 stride = 1
@@ -133,8 +133,8 @@ dataset = get_dataset(env_name, H, stride, test_split, get_rewards=args.get_rewa
 
 obs_chunks_train = dataset['observations_train']
 action_chunks_train = dataset['actions_train']
-print("State:",obs_chunks_train.shape)
-print("action:",action_chunks_train.shape)
+print("Train_State:",obs_chunks_train.shape) #chunk size x T(H) x s_dim
+print("Train_Action:",action_chunks_train.shape)
 
 if test_split>0.0:
 	obs_chunks_test = dataset['observations_test']
