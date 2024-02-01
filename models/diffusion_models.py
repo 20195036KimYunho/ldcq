@@ -62,7 +62,7 @@ class ResBlock(nn.Module):
         h = torch.cat([x,s_embed], dim=1)
         h = self.layer1(h)
         h = self.layer_norm(h)
-        scale_shift = t_embed.chunk(2, dim=1)
+        scale_shift = t_embed.chunk(2, dim=1) #dim=1 을 2개의 chunk로 분리 -> 각각 input_dim 차원
         scale, shift = scale_shift
         h = h * (scale + 1) + shift
         h = self.act(h)

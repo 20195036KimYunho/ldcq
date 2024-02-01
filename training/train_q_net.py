@@ -144,18 +144,22 @@ def train(args):
             guide_w=args.cfg_weight,
         ).to(args.device)
         model.eval()
-
-    dqn_agent = DDQN(state_dim = x_shape, z_dim=y_dim, diffusion_prior=model, total_prior_samples=args.total_prior_samples, gamma=args.gamma)
-    dqn_agent.learn(dataload_train=per_buffer if args.per_buffer else dataload_train, n_epochs=args.n_epoch,
-        diffusion_model_name=args.skill_model_filename[:-4], cfg_weight=args.cfg_weight, per_buffer = args.per_buffer, batch_size = args.batch_size)
+    
+    #DDQN의 num_prior_samples는 default가 100, q_learning_dataset에서 이 값을 바꿨으면 여기도 바뀌어야하는데 
+    #고정돼 있어서 shae is invalid for input size 에러가 남. num_prior_samples 값을 넣어주도록 설정
+    #아직 total_prior_samples와 num_prior_samples의 차이는 모르겠어서 동일하게 넣어줌
+    #나중에 argument를 새로 만들지 결정해야 함
+    dqn_agent = DDQN(state_dim = x_shape, z_dim=y_dim, diffusion_prior=model, num_prior_samples=args.total_prior_samples,total_prior_samples=args.total_prior_samples, gamma=args.gamma)
+    dqn_agent.learn(dataload_train=per_buffer if args.per_buffer else dataload_train, n_epochs=args.n_epoch, diffusion_model_name=args.skill_model_filename[:-4], cfg_weight=args.cfg_weight, per_buffer = args.per_buffer, batch_size = args.batch_size)
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-
-    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')
+    
+    # #####해놓은 것들이 argument 잘못넣으면 안 돌아가는 것들, 돌리기 전 꼭 확인할 것
+    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')#####
     parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--n_epoch', type=int, default=10000)
+    parser.add_argument('--n_epoch', type=int, default=10000) 
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--net_type', type=str, default='unet')
@@ -164,15 +168,15 @@ if __name__ == "__main__":
     parser.add_argument('--sample_z', type=int, default=0)
     parser.add_argument('--per_buffer', type=int, default=1)
     parser.add_argument('--sample_max_latents', type=int, default=1)
-    parser.add_argument('--total_prior_samples', type=int, default=1000)
+    parser.add_argument('--total_prior_samples', type=int, default=1000) #####
     parser.add_argument('--gamma', type=float, default=0.995)
     parser.add_argument('--alpha', type=float, default=0.6)
 
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
     parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data/')
-    parser.add_argument('--skill_model_filename', type=str)
+    parser.add_argument('--skill_model_filename', type=str) #####
 
-    parser.add_argument('--do_diffusion', type=int, default=1)
+    parser.add_argument('--do_diffusion', type=int, default=1) #####
     parser.add_argument('--drop_prob', type=float, default=0.0)
     parser.add_argument('--diffusion_steps', type=int, default=100)
     parser.add_argument('--cfg_weight', type=float, default=0.0)

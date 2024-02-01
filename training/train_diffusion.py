@@ -175,8 +175,9 @@ def train(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-
-    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')
+    
+    # #####해놓은 것들이 argument 잘못넣으면 안 돌아가는 것들, 돌리기 전 꼭 확인할 것
+    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2') #####
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--n_epoch', type=int, default=100)
     parser.add_argument('--lrate', type=float, default=1e-4)
@@ -188,8 +189,8 @@ if __name__ == "__main__":
 
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
     parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data/')
-    parser.add_argument('--skill_model_filename', type=str)
-    parser.add_argument('--append_goals', type=int, default=0)
+    parser.add_argument('--skill_model_filename', type=str) #####
+    parser.add_argument('--append_goals', type=int, default=0) #####
 
     parser.add_argument('--drop_prob', type=float, default=0.0)
     parser.add_argument('--diffusion_steps', type=int, default=100)

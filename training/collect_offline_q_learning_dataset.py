@@ -28,7 +28,9 @@ def collect_data(args):
     with open(dataset_file, "rb") as f:
         dataset = pickle.load(f)
 
-    state_dim = dataset['observations'].shape[1]
+    #skill model 차원이랑 불러오는 차원이랑 달라서 에러 발생, 밑에 state_dim 관련해서 코드 뒤에 원래 코드 주석으로 붙어있는 것들이 수정한 것
+    # 원래 코드 사용하려면 skill model에서는 append goal을 하지 않은 상태여야 함
+    state_dim = dataset['observations'].shape[1]+args.append_goals*2 #state_dim = dataset['observations'].shape[1]
     a_dim = dataset['actions'].shape[1]
 
     skill_model_path = os.path.join(args.checkpoint_dir, args.skill_model_filename)
@@ -83,7 +85,7 @@ def collect_data(args):
         batch_size=args.batch_size,
         num_workers=0)
 
-    states_gt = np.zeros((inputs_train.shape[0], state_dim+2*args.append_goals))
+    states_gt = np.zeros((inputs_train.shape[0], state_dim)) #states_gt = np.zeros((inputs_train.shape[0], state_dim+2*args.append_goals))
     latent_gt = np.zeros((inputs_train.shape[0], args.z_dim))
     if args.save_z_dist:
         latent_std_gt = np.zeros((inputs_train.shape[0], args.z_dim))
@@ -101,16 +103,19 @@ def collect_data(args):
     for batch_id, data in enumerate(tqdm(train_loader)):
         data = data.to(args.device)
         states = data[:, :, :skill_model.state_dim]
-        actions = data[:, :, skill_model.state_dim+2*args.append_goals:skill_model.state_dim+2*args.append_goals+a_dim]
+        actions = data[:, :, skill_model.state_dim:skill_model.state_dim+a_dim] #actions = data[:, :, skill_model.state_dim+2*args.append_goals:skill_model.state_dim+2*args.append_goals+a_dim]
         if not 'maze' in args.env and not 'kitchen' in args.env:
-            rewards = data[:, :, skill_model.state_dim+2*args.append_goals+a_dim:skill_model.state_dim+2*args.append_goals+a_dim+1]
-            terminals = data[:, :, skill_model.state_dim+2*args.append_goals+a_dim+1:]
+            rewards = data[:, :, skill_model.state_dim+a_dim:skill_model.state_dim+a_dim+1]
+            terminals = data[:, :, skill_model.state_dim+a_dim+1:]
+            # rewards = data[:, :, skill_model.state_dim+2*args.append_goals+a_dim:skill_model.state_dim+2*args.append_goals+a_dim+1]
+            # terminals = data[:, :, skill_model.state_dim+2*args.append_goals+a_dim+1:]
         else:
-            rewards = data[:, :, skill_model.state_dim+2*args.append_goals+a_dim:]
-
+            rewards = data[:, :, skill_model.state_dim+a_dim:]
+            #rewards = data[:, :, skill_model.state_dim+2*args.append_goals+a_dim:]
         start_idx = batch_id * args.batch_size
         end_idx = start_idx + args.batch_size
-        states_gt[start_idx : end_idx] = data[:, 0, :skill_model.state_dim+2*args.append_goals].cpu().numpy()
+        states_gt[start_idx : end_idx] = data[:, 0, :skill_model.state_dim].cpu().numpy()
+        #states_gt[start_idx : end_idx] = data[:, 0, :skill_model.state_dim+2*args.append_goals].cpu().numpy()
         sT_gt[start_idx: end_idx] = states[:, -1, :skill_model.state_dim].cpu().numpy()
         rewards_gt[start_idx: end_idx, 0] = np.sum(rewards.cpu().numpy()[:,:,0]*gamma_array, axis=1)
         if not 'maze' in args.env and not 'kitchen' in args.env:
@@ -150,20 +155,21 @@ def collect_data(args):
 if __name__ == '__main__':
 
     parser = ArgumentParser()
-
-    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')
+   
+    # #####해놓은 것들이 argument 잘못넣으면 안 돌아가는 것들, 돌리기 전 꼭 확인할 것
+    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2') #####
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
-    parser.add_argument('--skill_model_filename', type=str)
+    parser.add_argument('--skill_model_filename', type=str) #####
     parser.add_argument('--batch_size', type=int, default=256)
-    parser.add_argument('--append_goals', type=int, default=0)
+    parser.add_argument('--append_goals', type=int, default=0) #####
     parser.add_argument('--save_z_dist', type=int, default=1)
     parser.add_argument('--cum_rewards', type=int, default=0)
 
-    parser.add_argument('--do_diffusion', type=int, default=1)
-    parser.add_argument('--num_diffusion_samples', type=int, default=1000)
-    parser.add_argument('--num_prior_samples', type=int, default=1000)
-    parser.add_argument('--diffusion_steps', type=int, default=100)
+    parser.add_argument('--do_diffusion', type=int, default=1) #####
+    parser.add_argument('--num_diffusion_samples', type=int, default=1000) #####
+    parser.add_argument('--num_prior_samples', type=int, default=1000) #####
+    parser.add_argument('--diffusion_steps', type=int, default=100) 
     parser.add_argument('--cfg_weight', type=float, default=0.0)
     parser.add_argument('--extra_steps', type=int, default=5)
     parser.add_argument('--predict_noise', type=int, default=0)
@@ -172,10 +178,10 @@ if __name__ == '__main__':
     parser.add_argument('--horizon', type=int, default=30)
     parser.add_argument('--stride', type=int, default=1)
     parser.add_argument('--beta', type=float, default=1.0)
-    parser.add_argument('--a_dist', type=str, default='normal')
-    parser.add_argument('--encoder_type', type=str, default='gru')
-    parser.add_argument('--state_decoder_type', type=str, default='mlp')
-    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive')
+    parser.add_argument('--a_dist', type=str, default='normal') 
+    parser.add_argument('--encoder_type', type=str, default='gru') #####
+    parser.add_argument('--state_decoder_type', type=str, default='mlp') #####
+    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive') #####
     parser.add_argument('--per_element_sigma', type=int, default=1)
     parser.add_argument('--conditional_prior', type=int, default=1)
     parser.add_argument('--h_dim', type=int, default=256)

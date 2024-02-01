@@ -68,22 +68,23 @@ def test(model, test_state_decoder):
 	return np.mean(losses), np.mean(s_T_losses), np.mean(a_losses), np.mean(kl_losses), None
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--env_name', type=str, default='antmaze-large-diverse-v2')
+# #####해놓은 것들이 argument 잘못넣으면 안 돌아가는 것들, 돌리기 전 꼭 확인할 것
+parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2') #####
 parser.add_argument('--beta', type=float, default=0.05)
 parser.add_argument('--conditional_prior', type=int, default=1)
 parser.add_argument('--z_dim', type=int, default=16)
 parser.add_argument('--lr', type=float, default=5e-5)
-parser.add_argument('--policy_decoder_type', type=str, default='autoregressive')
-parser.add_argument('--state_decoder_type', type=str, default='mlp')
+parser.add_argument('--policy_decoder_type', type=str, default='autoregressive') #####
+parser.add_argument('--state_decoder_type', type=str, default='mlp') #####
 parser.add_argument('--a_dist', type=str, default='normal')
 parser.add_argument('--horizon', type=int, default=30)
 parser.add_argument('--separate_test_trajectories', type=int, default=0)
 parser.add_argument('--test_split', type=float, default=0.2)
 parser.add_argument('--get_rewards', type=int, default=1)
-parser.add_argument('--num_epochs', type=int, default=50000)
-parser.add_argument('--start_training_state_decoder_after', type=int, default=0)
-parser.add_argument('--normalize_latent', type=int, default=0)
-parser.add_argument('--append_goals', type=int, default=0)
+parser.add_argument('--num_epochs', type=int, default=50000) 
+parser.add_argument('--start_training_state_decoder_after', type=int, default=0) #####
+parser.add_argument('--normalize_latent', type=int, default=0) 
+parser.add_argument('--append_goals', type=int, default=0) #####
 args = parser.parse_args()
 
 batch_size = 64 #default 128
@@ -108,7 +109,7 @@ train_diffusion_prior = False
 beta = args.beta # 1.0 # 0.1, 0.01, 0.001
 conditional_prior = args.conditional_prior # True
 
-env_name = args.env_name
+env_name = args.env
 
 dataset_file = parent_folder+'/data/'+env_name+'.pkl'
 with open(dataset_file, "rb") as f:
@@ -119,6 +120,7 @@ states = dataset['observations'] #[:10000]
 #next_states = dataset['next_observations']
 actions = dataset['actions'] #[:10000]
 
+#데이터셋의 형태
 print("State:",states.shape)
 print("action:",actions.shape)
 N = states.shape[0] #N: 전체 데이터셋 갯수
@@ -133,6 +135,7 @@ dataset = get_dataset(env_name, H, stride, test_split, get_rewards=args.get_rewa
 
 obs_chunks_train = dataset['observations_train']
 action_chunks_train = dataset['actions_train']
+#train chunk의 형태
 print("Train_State:",obs_chunks_train.shape) #chunk size x T(H) x s_dim
 print("Train_Action:",action_chunks_train.shape)
 
@@ -148,6 +151,7 @@ experiment = Experiment(api_key = '', project_name = '')
 model = SkillModel(state_dim,a_dim,z_dim,h_dim,horizon=H,a_dist=a_dist,beta=beta,fixed_sig=None,encoder_type=encoder_type,state_decoder_type=state_decoder_type,policy_decoder_type=policy_decoder_type,per_element_sigma=per_element_sigma, conditional_prior=conditional_prior, train_diffusion_prior=train_diffusion_prior, normalize_latent=args.normalize_latent).cuda()
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
 
+#사용하지 않는 코드
 # if load_from_checkpoint:
 # 	PATH = os.path.join(checkpoint_dir,filename+'_best_sT.pth')
 # 	checkpoint = torch.load(PATH)

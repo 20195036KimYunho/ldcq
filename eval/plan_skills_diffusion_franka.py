@@ -49,6 +49,7 @@ def q_policy(diffusion_model,
     if args.state_decoder_type == 'autoregressive':
         state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
         state = state_pred.squeeze(1)
+    #state_decoder가 없으면 skip하도록
     elif args.state_decoder_type == 'none':
         pass
     else:
@@ -302,16 +303,17 @@ if __name__ == "__main__":
 
     parser = ArgumentParser()
 
-    parser.add_argument('--env', type=str, default='kitchen-complete-v0')
+    # #####해놓은 것들이 argument 잘못넣으면 안 돌아가는 것들, 돌리기 전 꼭 확인할 것
+    parser.add_argument('--env', type=str, default='kitchen-complete-v0') #####
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_evals', type=int, default=100)
     parser.add_argument('--num_parallel_envs', type=int, default=1)
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints')
     parser.add_argument('--q_checkpoint_dir', type=str, default=parent_folder+'/q_checkpoints')
-    parser.add_argument('--q_checkpoint_steps', type=int, default=0)
+    parser.add_argument('--q_checkpoint_steps', type=int, default=0) #####
     parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data')
-    parser.add_argument('--skill_model_filename', type=str)
-    parser.add_argument('--append_goals', type=int, default=0)
+    parser.add_argument('--skill_model_filename', type=str) #####
+    parser.add_argument('--append_goals', type=int, default=0) #####
 
     parser.add_argument('--policy', type=str, default='q') #greedy/exhaustive/q
     parser.add_argument('--num_diffusion_samples', type=int, default=50)
@@ -323,9 +325,9 @@ if __name__ == "__main__":
 
     parser.add_argument('--beta', type=float, default=1.0)
     parser.add_argument('--a_dist', type=str, default='normal')
-    parser.add_argument('--encoder_type', type=str, default='gru')
-    parser.add_argument('--state_decoder_type', type=str, default='mlp')
-    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive')
+    parser.add_argument('--encoder_type', type=str, default='gru') #####
+    parser.add_argument('--state_decoder_type', type=str, default='mlp') #####
+    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive') #####
     parser.add_argument('--per_element_sigma', type=int, default=1)
     parser.add_argument('--conditional_prior', type=int, default=1)
     parser.add_argument('--h_dim', type=int, default=256)

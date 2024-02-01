@@ -3,3 +3,4 @@
 *.pth
 *.pkl
 *__pycache__*
+*.zip

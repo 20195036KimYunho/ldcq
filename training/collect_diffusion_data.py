@@ -25,6 +25,7 @@ def collect_data(args):
     elif 'maze' in args.env:
         state_dim = 4 + args.append_goals * 2
         a_dim = 2
+    #halfcheetah와 walker2d의 state, action dimension 추가
     elif 'halfcheetah' in args.env:
         state_dim = 17 + args.append_goals * 2
         a_dim = 6
@@ -55,7 +56,8 @@ def collect_data(args):
     skill_model.load_state_dict(checkpoint['model_state_dict'])
     skill_model.eval()
 
-    if 'halfcheetah' in args.env or 'walker2d' in args.env: 
+    #locomotion data의 경우 reward까지 받아오도록 수정, maze계열은 없는게 default
+    if 'halfcheetah' in args.env or 'walker2d' in args.env:
         dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals,args.get_rewards)
     else:
         dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals)
@@ -99,13 +101,13 @@ def collect_data(args):
 if __name__ == '__main__':
 
     parser = ArgumentParser()
-
-    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')
+     # #####해놓은 것들이 argument 잘못넣으면 안 돌아가는 것들, 돌리기 전 꼭 확인할 것
+    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2') #####
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints')
-    parser.add_argument('--skill_model_filename', type=str)
+    parser.add_argument('--skill_model_filename', type=str) #####
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--append_goals', type=int, default=0)
+    parser.add_argument('--append_goals', type=int, default=0) #####
     parser.add_argument('--save_z_dist', type=int, default=0)
     parser.add_argument('--get_rewards', type=int, default=1)
     
@@ -113,9 +115,9 @@ if __name__ == '__main__':
     parser.add_argument('--stride', type=int, default=1)
     parser.add_argument('--beta', type=float, default=0.05)
     parser.add_argument('--a_dist', type=str, default='normal')
-    parser.add_argument('--encoder_type', type=str, default='gru')
-    parser.add_argument('--state_decoder_type', type=str, default='mlp')
-    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive')
+    parser.add_argument('--encoder_type', type=str, default='gru') #####
+    parser.add_argument('--state_decoder_type', type=str, default='mlp') #####
+    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive') #####
     parser.add_argument('--per_element_sigma', type=int, default=1)
     parser.add_argument('--conditional_prior', type=int, default=1)
     parser.add_argument('--h_dim', type=int, default=256)
