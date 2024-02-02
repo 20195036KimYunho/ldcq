@@ -618,61 +618,61 @@ class SkillModel(nn.Module):
             return a_means, a_sigs, z_post_means, z_post_sigs, z_sampled
 
     # """미사용 코드"""
-    def get_E_loss(self,states,actions):
+    # def get_E_loss(self,states,actions):
 
-        batch_size,T,_ = states.shape
-        denom = T*batch_size
-        # get KL divergence between approximate and true posterior
-        z_post_means,z_post_sigs = self.encoder(states,actions)
+    #     batch_size,T,_ = states.shape
+    #     denom = T*batch_size
+    #     # get KL divergence between approximate and true posterior
+    #     z_post_means,z_post_sigs = self.encoder(states,actions)
 
-        z_sampled = self.reparameterize(z_post_means,z_post_sigs)
+    #     z_sampled = self.reparameterize(z_post_means,z_post_sigs)
 
-        z_prior_means,z_prior_sigs = self.prior(states[:,0:1,:])
-        if self.policy_decoder_type == 'autoregressive':
-            a_means,a_sigs = self.decoder.ll_policy(states,actions,z_sampled)
-        elif self.policy_decoder_type == 'mlp':
-            a_means,a_sigs = self.decoder.ll_policy(states,z_sampled)
+    #     z_prior_means,z_prior_sigs = self.prior(states[:,0:1,:])
+    #     if self.policy_decoder_type == 'autoregressive':
+    #         a_means,a_sigs = self.decoder.ll_policy(states,actions,z_sampled)
+    #     elif self.policy_decoder_type == 'mlp':
+    #         a_means,a_sigs = self.decoder.ll_policy(states,z_sampled)
 
-        post_dist = Normal.Normal(z_post_means,z_post_sigs)
-        a_dist    = Normal.Normal(a_means,a_sigs)
-        prior_dist = Normal.Normal(z_prior_means,z_prior_sigs)
+    #     post_dist = Normal.Normal(z_post_means,z_post_sigs)
+    #     a_dist    = Normal.Normal(a_means,a_sigs)
+    #     prior_dist = Normal.Normal(z_prior_means,z_prior_sigs)
 
-        log_pi = torch.sum(a_dist.log_prob(actions)) / denom
-        log_prior = torch.sum(prior_dist.log_prob(z_sampled)) / denom
-        log_post  = torch.sum(post_dist.log_prob(z_sampled)) / denom
+    #     log_pi = torch.sum(a_dist.log_prob(actions)) / denom
+    #     log_prior = torch.sum(prior_dist.log_prob(z_sampled)) / denom
+    #     log_post  = torch.sum(post_dist.log_prob(z_sampled)) / denom
 
-        return -log_pi + -self.beta*log_prior + self.beta*log_post
+    #     return -log_pi + -self.beta*log_prior + self.beta*log_post
 
-    def get_M_loss(self, states, actions, train_state_decoder):
+    # def get_M_loss(self, states, actions, train_state_decoder):
 
-        batch_size,T,_ = states.shape
-        denom = T*batch_size
+    #     batch_size,T,_ = states.shape
+    #     denom = T*batch_size
         
-        z_post_means,z_post_sigs = self.encoder(states,actions)
+    #     z_post_means,z_post_sigs = self.encoder(states,actions)
 
-        z_sampled = self.reparameterize(z_post_means,z_post_sigs)
+    #     z_sampled = self.reparameterize(z_post_means,z_post_sigs)
 
-        z_prior_means, z_prior_sigs = self.prior(states[:, 0:1, :])
+    #     z_prior_means, z_prior_sigs = self.prior(states[:, 0:1, :])
 
-        loss = 0
-        if train_state_decoder:
-            sT_mean, sT_sig, a_means, a_sigs = self.decoder(states, actions, z_sampled, train_state_decoder)
-            sT_dist = Normal.Normal(sT_mean, sT_sig)
-            sT = states[:,-1:,:]
-            sT_loss = -torch.sum(sT_dist.log_prob(sT)) / denom
-            loss += sT_loss
-        else:
-            a_means, a_sigs = self.decoder(states, actions, z_sampled, train_state_decoder)
+    #     loss = 0
+    #     if train_state_decoder:
+    #         sT_mean, sT_sig, a_means, a_sigs = self.decoder(states, actions, z_sampled, train_state_decoder)
+    #         sT_dist = Normal.Normal(sT_mean, sT_sig)
+    #         sT = states[:,-1:,:]
+    #         sT_loss = -torch.sum(sT_dist.log_prob(sT)) / denom
+    #         loss += sT_loss
+    #     else:
+    #         a_means, a_sigs = self.decoder(states, actions, z_sampled, train_state_decoder)
 
-        a_dist    = Normal.Normal(a_means,a_sigs)
-        prior_dist = Normal.Normal(z_prior_means,z_prior_sigs)
+    #     a_dist    = Normal.Normal(a_means,a_sigs)
+    #     prior_dist = Normal.Normal(z_prior_means,z_prior_sigs)
 
-        a_loss =  -torch.sum(a_dist.log_prob(actions)) / denom
-        loss += a_loss
-        prior_loss = -torch.sum(prior_dist.log_prob(z_sampled)) / denom
-        loss += self.beta * prior_loss
+    #     a_loss =  -torch.sum(a_dist.log_prob(actions)) / denom
+    #     loss += a_loss
+    #     prior_loss = -torch.sum(prior_dist.log_prob(z_sampled)) / denom
+    #     loss += self.beta * prior_loss
 
-        return loss
+    #     return loss
 
     
     def get_losses(self, states, actions, state_decoder):
@@ -716,7 +716,7 @@ class SkillModel(nn.Module):
                 z_prior_sigs = torch.ones_like(z_post_sigs)
                 z_prior_dist = Normal.Normal(z_prior_means, z_prior_sigs)
 
-        a_loss   = -torch.mean(torch.sum(a_dist.log_prob(actions), dim=-1))
+        a_loss = -torch.mean(torch.sum(a_dist.log_prob(actions), dim=-1))
         if not self.normalize_latent:
             kl_loss = torch.mean(torch.sum(KL.kl_divergence(z_post_dist, z_prior_dist), dim=-1))/T 
         else:
@@ -736,143 +736,143 @@ class SkillModel(nn.Module):
             return  loss_tot, a_loss, kl_loss, diffusion_loss
 
 # """미사용 코드"""
-    def get_expected_cost(self, s0, skill_seq, goal_states):
-        '''
-        s0 is initial state  # batch_size x 1 x s_dim
-        skill sequence is a 1 x skill_seq_len x z_dim tensor that representents a skill_seq_len sequence of skills
-        '''
-        # tile s0 along batch dimension
-        #s0_tiled = s0.tile([1,batch_size,1])
-        batch_size = s0.shape[0]
-        goal_states = torch.cat(batch_size * [goal_states],dim=0)
-        s_i = s0
+    # def get_expected_cost(self, s0, skill_seq, goal_states):
+    #     '''
+    #     s0 is initial state  # batch_size x 1 x s_dim
+    #     skill sequence is a 1 x skill_seq_len x z_dim tensor that representents a skill_seq_len sequence of skills
+    #     '''
+    #     # tile s0 along batch dimension
+    #     #s0_tiled = s0.tile([1,batch_size,1])
+    #     batch_size = s0.shape[0]
+    #     goal_states = torch.cat(batch_size * [goal_states],dim=0)
+    #     s_i = s0
         
-        skill_seq_len = skill_seq.shape[1]
-        pred_states = [s_i]
-        for i in range(skill_seq_len):
-            # z_i = skill_seq[:,i:i+1,:] # might need to reshape
-            mu_z, sigma_z = self.prior(s_i)
+    #     skill_seq_len = skill_seq.shape[1]
+    #     pred_states = [s_i]
+    #     for i in range(skill_seq_len):
+    #         # z_i = skill_seq[:,i:i+1,:] # might need to reshape
+    #         mu_z, sigma_z = self.prior(s_i)
           
 
-            z_i = mu_z + sigma_z*torch.cat(batch_size*[skill_seq[:,i:i+1,:]],dim=0)
-            # converting z_i from 1x1xz_dim to batch_size x 1 x z_dim
-            # z_i = torch.cat(batch_size*[z_i],dim=0) # feel free to change this to tile
-            # use abstract dynamics model to predict mean and variance of state after executing z_i, conditioned on s_i
-            s_mean, s_sig = self.decoder.abstract_dynamics(s_i,z_i)
+    #         z_i = mu_z + sigma_z*torch.cat(batch_size*[skill_seq[:,i:i+1,:]],dim=0)
+    #         # converting z_i from 1x1xz_dim to batch_size x 1 x z_dim
+    #         # z_i = torch.cat(batch_size*[z_i],dim=0) # feel free to change this to tile
+    #         # use abstract dynamics model to predict mean and variance of state after executing z_i, conditioned on s_i
+    #         s_mean, s_sig = self.decoder.abstract_dynamics(s_i,z_i)
             
-            # sample s_i+1 using reparameterize
-            s_sampled = self.reparameterize(s_mean, s_sig)
-            s_i = s_sampled
+    #         # sample s_i+1 using reparameterize
+    #         s_sampled = self.reparameterize(s_mean, s_sig)
+    #         s_i = s_sampled
             
-            pred_states.append(s_i)
+    #         pred_states.append(s_i)
         
-        #compute cost for sequence of states/skills
-        # print('predicted final loc: ', s_i[:,:,:2])
-        s_term = s_i
-        cost = torch.mean((s_term[:,:,:2] - goal_states[:,:,:2])**2)
+    #     #compute cost for sequence of states/skills
+    #     # print('predicted final loc: ', s_i[:,:,:2])
+    #     s_term = s_i
+    #     cost = torch.mean((s_term[:,:,:2] - goal_states[:,:,:2])**2)
         
         
-        return cost, torch.cat(pred_states,dim=1)
+    #     return cost, torch.cat(pred_states,dim=1)
 
-    def get_expected_cost_antmaze(self, s0, skill_seq, goal_state, use_epsilons=True, plot=False, length_cost=0, var_pen=0.0):
-        '''
-        s0 is initial state, batch_size x 1 x s_dim
-        skill sequence is a batch_size x skill_seq_len x z_dim tensor that representents a skill_seq_len sequence of skills
-        '''
-        # tile s0 along batch dimension
-        #s0_tiled = s0.tile([1,batch_size,1])
-        batch_size = s0.shape[0]
-        goal_state = torch.cat(batch_size * [goal_state],dim=0)
-        s_i = s0
+    # def get_expected_cost_antmaze(self, s0, skill_seq, goal_state, use_epsilons=True, plot=False, length_cost=0, var_pen=0.0):
+    #     '''
+    #     s0 is initial state, batch_size x 1 x s_dim
+    #     skill sequence is a batch_size x skill_seq_len x z_dim tensor that representents a skill_seq_len sequence of skills
+    #     '''
+    #     # tile s0 along batch dimension
+    #     #s0_tiled = s0.tile([1,batch_size,1])
+    #     batch_size = s0.shape[0]
+    #     goal_state = torch.cat(batch_size * [goal_state],dim=0)
+    #     s_i = s0
         
-        skill_seq_len = skill_seq.shape[1]
-        pred_states = [s_i]
-        # costs = torch.zeros(batch_size,device=s0.device)
-        costs = [torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()]
-        # costs = (lengths == 0)*torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()
-        var_cost = 0.0
-        for i in range(skill_seq_len):
+    #     skill_seq_len = skill_seq.shape[1]
+    #     pred_states = [s_i]
+    #     # costs = torch.zeros(batch_size,device=s0.device)
+    #     costs = [torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()]
+    #     # costs = (lengths == 0)*torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()
+    #     var_cost = 0.0
+    #     for i in range(skill_seq_len):
             
-            # z_i = skill_seq[:,i:i+1,:] # might need to reshape
-            if use_epsilons:
-                mu_z, sigma_z = self.prior(s_i)
+    #         # z_i = skill_seq[:,i:i+1,:] # might need to reshape
+    #         if use_epsilons:
+    #             mu_z, sigma_z = self.prior(s_i)
                 
-                z_i = mu_z + sigma_z*skill_seq[:,i:i+1,:]
-            else:
-                z_i = skill_seq[:,i:i+1,:]
+    #             z_i = mu_z + sigma_z*skill_seq[:,i:i+1,:]
+    #         else:
+    #             z_i = skill_seq[:,i:i+1,:]
             
-            s_mean, s_sig = self.decoder.abstract_dynamics(s_i,z_i)
+    #         s_mean, s_sig = self.decoder.abstract_dynamics(s_i,z_i)
 
-            var_cost += var_pen*var_cost 
+    #         var_cost += var_pen*var_cost 
             
-            # sample s_i+1 using reparameterize
-            s_sampled = s_mean
-            # s_sampled = self.reparameterize(s_mean, s_sig)
-            s_i = s_sampled
+    #         # sample s_i+1 using reparameterize
+    #         s_sampled = s_mean
+    #         # s_sampled = self.reparameterize(s_mean, s_sig)
+    #         s_i = s_sampled
 
-            cost_i = torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze() + (i+1)*length_cost
-            costs.append(cost_i)
+    #         cost_i = torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze() + (i+1)*length_cost
+    #         costs.append(cost_i)
             
-            pred_states.append(s_i)
+    #         pred_states.append(s_i)
         
-        costs = torch.stack(costs,dim=1)  # should be a batch_size x T or batch_size x T 
-        costs,_ = torch.min(costs,dim=1)  # should be of size batch_size
+    #     costs = torch.stack(costs,dim=1)  # should be a batch_size x T or batch_size x T 
+    #     costs,_ = torch.min(costs,dim=1)  # should be of size batch_size
 
-        return costs + var_cost
+    #     return costs + var_cost
 
-    def get_expected_cost_for_mppi(self, s0, skill_seq, goal_state, use_epsilons=True, plot=False, length_cost=0, var_pen=0.0):
-        '''
-        s0 is initial state, batch_size x 1 x s_dim
-        skill sequence is a batch_size x skill_seq_len x z_dim tensor that representents a skill_seq_len sequence of skills
-        '''
-        # tile s0 along batch dimension
-        #s0_tiled = s0.tile([1,batch_size,1])
-        z_arr = []
-        delta_z_arr = []
+    # def get_expected_cost_for_mppi(self, s0, skill_seq, goal_state, use_epsilons=True, plot=False, length_cost=0, var_pen=0.0):
+    #     '''
+    #     s0 is initial state, batch_size x 1 x s_dim
+    #     skill sequence is a batch_size x skill_seq_len x z_dim tensor that representents a skill_seq_len sequence of skills
+    #     '''
+    #     # tile s0 along batch dimension
+    #     #s0_tiled = s0.tile([1,batch_size,1])
+    #     z_arr = []
+    #     delta_z_arr = []
         
-        batch_size = s0.shape[0]
-        goal_state = torch.cat(batch_size * [goal_state],dim=0)
-        s_i = s0
+    #     batch_size = s0.shape[0]
+    #     goal_state = torch.cat(batch_size * [goal_state],dim=0)
+    #     s_i = s0
         
-        skill_seq_len = skill_seq.shape[1]
-        pred_states = [s_i]
-        # costs = torch.zeros(batch_size,device=s0.device)
-        costs = [torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()]
-        # costs = (lengths == 0)*torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()
-        var_cost = 0.0
-        for i in range(skill_seq_len):
+    #     skill_seq_len = skill_seq.shape[1]
+    #     pred_states = [s_i]
+    #     # costs = torch.zeros(batch_size,device=s0.device)
+    #     costs = [torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()]
+    #     # costs = (lengths == 0)*torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze()
+    #     var_cost = 0.0
+    #     for i in range(skill_seq_len):
             
-            # z_i = skill_seq[:,i:i+1,:] # might need to reshape
-            if use_epsilons:
-                mu_z, sigma_z = self.prior(s_i)
-                z_arr.append(mu_z[:,0,:])
+    #         # z_i = skill_seq[:,i:i+1,:] # might need to reshape
+    #         if use_epsilons:
+    #             mu_z, sigma_z = self.prior(s_i)
+    #             z_arr.append(mu_z[:,0,:])
                 
-                z_i = mu_z + sigma_z*skill_seq[:,i:i+1,:]
-                delta_z_arr.append((z_i-mu_z)[:,0,:])
-            else:
-                z_i = skill_seq[:,i:i+1,:]
+    #             z_i = mu_z + sigma_z*skill_seq[:,i:i+1,:]
+    #             delta_z_arr.append((z_i-mu_z)[:,0,:])
+    #         else:
+    #             z_i = skill_seq[:,i:i+1,:]
             
-            s_mean, s_sig = self.decoder.abstract_dynamics(s_i,z_i)
+    #         s_mean, s_sig = self.decoder.abstract_dynamics(s_i,z_i)
 
-            var_cost += var_pen*var_cost 
+    #         var_cost += var_pen*var_cost 
             
-            # sample s_i+1 using reparameterize
-            s_sampled = s_mean
-            # s_sampled = self.reparameterize(s_mean, s_sig)
-            s_i = s_sampled
+    #         # sample s_i+1 using reparameterize
+    #         s_sampled = s_mean
+    #         # s_sampled = self.reparameterize(s_mean, s_sig)
+    #         s_i = s_sampled
 
-            cost_i = torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze() + (i+1)*length_cost
-            costs.append(cost_i)
+    #         cost_i = torch.mean((s_i[:,:,:2] - goal_state[:,:,:2])**2,dim=-1).squeeze() + (i+1)*length_cost
+    #         costs.append(cost_i)
             
-            pred_states.append(s_i)
+    #         pred_states.append(s_i)
         
-        costs = torch.stack(costs,dim=1)  # should be a batch_size x T or batch_size x T 
-        costs,_ = torch.min(costs,dim=1)  # should be of size batch_size
-        z_arr = torch.stack(z_arr)
-        delta_z_arr = torch.stack(delta_z_arr)
-        # print('costs: ', costs)
+    #     costs = torch.stack(costs,dim=1)  # should be a batch_size x T or batch_size x T 
+    #     costs,_ = torch.min(costs,dim=1)  # should be of size batch_size
+    #     z_arr = torch.stack(z_arr)
+    #     delta_z_arr = torch.stack(delta_z_arr)
+    #     # print('costs: ', costs)
         
-        return costs + var_cost, z_arr, delta_z_arr
+    #     return costs + var_cost, z_arr, delta_z_arr
     
     
     def reparameterize(self, mean, std):

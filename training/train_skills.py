@@ -136,7 +136,7 @@ dataset = get_dataset(env_name, H, stride, test_split, get_rewards=args.get_rewa
 obs_chunks_train = dataset['observations_train']
 action_chunks_train = dataset['actions_train']
 #train chunk의 형태
-print("Train_State:",obs_chunks_train.shape) #chunk size x T(H) x s_dim
+print("Train_Observations:",obs_chunks_train.shape) #chunk size x T(H) x s_dim
 print("Train_Action:",action_chunks_train.shape)
 
 if test_split>0.0:

@@ -1,0 +1,15 @@
+torch==2.1.2
+torchvision==0.16.2
+
+tqdm
+matplotlib
+comet_ml
+ipdb
+
+mujoco-py==2.1.2
+gym==0.12.1
+
+"cython<3"
+PyOpenGL==3.1.1a1
+patchelf
+"protobuf<3.20" 
