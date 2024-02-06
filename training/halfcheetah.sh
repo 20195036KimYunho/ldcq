@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 echo "===== train skills -- ldcq ====="
 python ./train_skills.py --env halfcheetah-expert-v2 --num_epochs 3 --start_training_state_decoder_after 100 --state_decoder_type "none"
 
