@@ -6,7 +6,7 @@ matplotlib
 comet_ml
 ipdb
 
-mujoco-py==2.1.2
+mujoco-py==2.1.2.14
 gym==0.12.1
 
 "cython<3"

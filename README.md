@@ -1,8 +1,11 @@
 # Latent Diffusion Constrained Q-Learning (LDCQ)
+
 Training and visualizing of diffusion models from [Reasoning with Latent Diffusion in Offline Reinforcement Learning (NeurIPS 2023)](https://arxiv.org/abs/2309.06599).
 
 ## Installation
+
 ### Using CUDA=12.1, pytorch=2.1.2 torchvision=0.16.2. Install cuDNN according to your own environment
+
 ```
 sudo apt-get update
 sudo apt-get upgrade
@@ -14,6 +17,7 @@ conda install pytorch==2.1.2 torchvision==0.16.2 pytorch-cuda=12.1 -c pytorch -c
 ```
 
 ### Install mujoco key & engine
+
 ```
 sudo apt-get update
 sudo apt-get upgrade
@@ -27,7 +31,7 @@ tar -xvf mujoco210-linux-x86_64.tar.gz
 mkdir .mujoco
 mv mujoco210 .mujoco
 
-wget https://www.roboti.us/file/mjkey.txt 
+wget https://www.roboti.us/file/mjkey.txt
 mv mjkey.txt .mujoco
 
 wget https://www.roboti.us/download/mjpro131_linux.zip
@@ -36,6 +40,7 @@ mv mjpro131 .mujoco
 ```
 
 ### Insert PATH in ~/.bashrc file
+
 ```
 vim ~/.bashrc
 
@@ -50,40 +55,57 @@ conda activate ldcq
 ```
 
 ### Install requirements.txt
+
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 ## Requirements (pip)
+
 ```
 tqdm
 matplotlib
 comet_ml
 ipdb
 
-mujoco-py==2.1.2
+mujoco-py==2.1.2.14
 gym==0.12.1
 
 "cython<3"
 PyOpenGL==3.1.1a1
 patchelf
-"protobuf<3.20" 
+"protobuf<3.20"
 ```
 
 ## Dataset
+
+### D4RL
+
+When you want to use D4RL dataset used in original LDCQ, it is recommended to install d4rl using the method from the original d4rl github https://github.com/Farama-Foundation/D4RL :
+
+```
+pip install git+https://github.com/Farama-Foundation/d4rl@master#egg=d4rl
+```
+
+when using `pip install d4rl`, there may be some issues about mjrl, environment.
+
 ```
 추가하기!
 ```
 
 ## Training
+
 Training Code for halfcheetah-expert Environment
+
 1. Training skill with:
+
 ```
 python ./train_skills.py --env halfcheetah-expert-v2 --num_epochs 3 --start_training_state_decoder_after 100 --state_decoder_type "none"
 ```
 
 2. Collect data to train diffusion model with:
+
 ```
 python ./collect_diffusion_data.py \
     --env halfcheetah-expert-v2 \
@@ -92,6 +114,7 @@ python ./collect_diffusion_data.py \
 ```
 
 3. Training diffusion model with:
+
 ```
 python ./train_diffusion.py \
     --env halfcheetah-expert-v2 \
@@ -101,6 +124,7 @@ python ./train_diffusion.py \
 ```
 
 4. Collect data to train offline Q-learning with:
+
 ```
 python ./collect_offline_q_learning_dataset.py \
     --env halfcheetah-expert-v2 \
@@ -112,6 +136,7 @@ python ./collect_offline_q_learning_dataset.py \
 ```
 
 5. Training Q-network with:
+
 ```
 python ./train_q_net.py \
     --env halfcheetah-expert-v2 \
@@ -122,6 +147,7 @@ python ./train_q_net.py \
 ```
 
 ## Test
+
 ```
 python ./plan_skills_diffusion_franka.py \
     --env halfcheetah-expert-v2 \
@@ -131,6 +157,7 @@ python ./plan_skills_diffusion_franka.py \
 ```
 
 ## Reference
+
 ```
 @inproceedings{ldcq,
   title = {Reasoning with Latent Diffusion in Offline Reinforcement Learning},
