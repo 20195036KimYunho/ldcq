@@ -12,7 +12,6 @@ import random
 import pickle
 import os
 import sys
-import json
 
 curr_folder=os.path.abspath(__file__)
 parent_folder=os.path.dirname(os.path.dirname(curr_folder))
@@ -64,29 +63,12 @@ def chunks(obs,actions,H,stride):
     return torch.stack(obs_chunks),torch.stack(action_chunks)
 
 
-def get_dataset(env_name, horizon, stride, test_split=0.2, append_goals=False, get_rewards=False, separate_test_trajectories=False, cum_rewards=True, all_task=True, tasks=None): #add options for ARC
+def get_dataset(env_name, horizon, stride, test_split=0.2, append_goals=False, get_rewards=False, separate_test_trajectories=False, cum_rewards=True):
+    dataset_file = parent_folder+'/data/'+env_name+'.pkl'
     
-    #ARC dataloader // load data directly in below.
-    if 'ARC' in env_name:
-        seg_folder = parent_folder+'/ARC_data/segment'
-        if all_task==True:
-            contents = os.listdir(seg_folder)
-            task_list = []
-            for item in contents:
-                if os.path.isdir(item):
-                    task_list.append(item)
-        else :
-            task_list=tasks
-            
-        operations=[]
-        selections=[]
-            
-    else:
-        dataset_file = parent_folder+'/data/'+env_name+'.pkl'
-        
-        with open(dataset_file, "rb") as f:
-            dataset = pickle.load(f)
-            
+    with open(dataset_file, "rb") as f:
+        dataset = pickle.load(f)
+
     observations = []
     actions = []
     terminals = []
@@ -314,80 +296,7 @@ def get_dataset(env_name, horizon, stride, test_split=0.2, append_goals=False, g
                     rewards_test=rewards_test,
                     # goals_test=goals_test,
                     )
-    
-    elif 'ARC' in env_name:
-        max_grid_size = (30,30)
-        for task in task_list:
-            task_folder = os.path.join(seg_folder,task)
-            sample_folder = os.listdir(task_folder)
-            for sample in sample_folder:
-                sample_path=os.path.join(task_folder,sample)
-                sample_segs=os.listdir(sample_path)
-                for seg in sample_segs:
-                    seg_file=os.path.join(sample_path,seg)
-                    with open(seg_file, "r") as f:
-                        data = json.load(f)
-                        obs=np.zeros((len(data['grid']),30,30))#max_grid_size 30
-                        for i in range(len(data['grid'])):
-                            h,w=np.array(data['grid'][i]).shape
-                            obs[i,:h,:w]=np.array(data['grid'][i])
-                        opr=np.full((len(data['operation']),36),-1,dtype=np.int8)
-                        
-                        for l in range(len(data['operation'])):
-                            opr[l][data['operation'][l]]=1
-                        sel=data['selection']
-                        rew=np.expand_dims(data['reward'],axis=1)
-                        term=np.expand_dims(data['terminated'],axis=1)
-                        
-                        observations.append(torch.tensor(obs, dtype=torch.int8))
-                        operations.append(torch.tensor(opr, dtype=torch.int8))
-                        selections.append(torch.tensor(sel, dtype=torch.int8))
-                        rewards.append(torch.tensor(rew, dtype=torch.float32))
-                        terminals.append(torch.tensor(term, dtype=torch.bool))
-                        f.close()
-                
-        observations = torch.stack(observations)
-        operations = torch.stack(operations)
-        selections = torch.stack(selections)
-        rewards = torch.stack(rewards)
-        terminals = torch.stack(terminals)
 
-        num_samples = observations.shape[0]
-
-        print('Total data samples extracted: ', num_samples)
-        num_test_samples = int(test_split * num_samples)
-
-        if separate_test_trajectories:
-            train_indices = np.arange(0, num_samples - num_test_samples)
-            test_indices = np.arange(num_samples - num_test_samples, num_samples)
-        else:
-            test_indices = np.random.choice(np.arange(num_samples), num_test_samples, replace=False)
-            train_indices = np.array(list(set(np.arange(num_samples)) - set(test_indices)))
-        np.random.shuffle(train_indices)
-
-        observations_train = observations[train_indices]
-        operations_train = operations[train_indices]
-        selections_train = selections[train_indices]
-        rewards_train = rewards[train_indices]
-        terminals_train = terminals[train_indices]
-
-        observations_test = observations[test_indices]
-        operations_test = operations[test_indices]
-        selections_test = selections[test_indices]
-        rewards_test = rewards[test_indices]
-        terminals_test = terminals[test_indices]
-
-        return dict(observations_train=observations_train,
-                    operations_train=operations_train,
-                    selections_train=selections_train,
-                    rewards_train=rewards_train,
-                    terminals_train=terminals_train,
-                    observations_test=observations_test,
-                    operations_test=operations_test,
-                    selections_test = selections_test,
-                    rewards_test=rewards_test,
-                    terminals_test=terminals_test
-                    )
     else:
         obs = dataset['observations']
         act = dataset['actions']

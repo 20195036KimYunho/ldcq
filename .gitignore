@@ -1,7 +1,7 @@
 *.npy
 *.pt
 *.pth
-*.pkl
 *__pycache__*
-*.zip
+*.pkl
 *.json
+*.zip
