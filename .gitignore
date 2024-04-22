@@ -2,6 +2,5 @@
 *.pt
 *.pth
 *__pycache__*
-*.pkl
 *.json
 *.zip
