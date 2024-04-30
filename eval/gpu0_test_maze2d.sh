@@ -1,5 +1,5 @@
-CUDA_VISIBLE_DEVICES=0 python ./plan_skills_diffusion_franka.py \
-    --env halfcheetah-expert-v2 \
+CUDA_VISIBLE_DEVICES=0 python ./plan_skills_diffusion_maze2d.py \
+    --env maze2d-large-v1 \
     --device 'cuda'\
     --num_evals 100\
     --num_parallel_envs 1\
@@ -13,6 +13,7 @@ CUDA_VISIBLE_DEVICES=0 python ./plan_skills_diffusion_franka.py \
     --num_diffusion_samples 10\
     --diffusion_steps 200\
     --cfg_weight 0.0\
+    --planning_depth 5\
     --extra_steps 5\
     --predict_noise 0\
     --exec_horizon 10\
@@ -25,5 +26,6 @@ CUDA_VISIBLE_DEVICES=0 python ./plan_skills_diffusion_franka.py \
     --conditional_prior 1\
     --h_dim 256\
     --z_dim 16\
-    --horizon 10\
+    --horizon 30\
     --render 1\
+    --visualize 0\

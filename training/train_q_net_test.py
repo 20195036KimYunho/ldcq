@@ -22,7 +22,7 @@ from models.diffusion_models import (
     Model_cnn_mlp,
     Model_Cond_Diffusion,
 )
-from models.dqn import DDQN
+from models.dqn_test import DDQN
 
 class QLearningDataset(Dataset):
     def __init__(

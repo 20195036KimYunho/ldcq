@@ -1,5 +1,5 @@
-CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
-    --env antmaze-medium-diverse-v2 \
+CUDA_VISIBLE_DEVICES=0 python ../train_skills.py \
+    --env maze2d-large-v1\
     --beta 0.05\
     --conditional_prior 1\
     --z_dim 16\
@@ -13,5 +13,5 @@ CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
     --get_rewards 1\
     --num_epochs 100 \
     --start_training_state_decoder_after 1000 \
-    --normalize_state 0\
-    --append_goals 0\
+    --normalize_latent 0\
+    --append_goals 0

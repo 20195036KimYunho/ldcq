@@ -8,7 +8,9 @@ sys.path.append(parent_folder)
 
 from argparse import ArgumentParser
 import os
-from comet_ml import Experiment
+
+#from comet_ml import Experiment
+import wandb
 
 #import d4rl
 import gym
@@ -74,15 +76,19 @@ class PriorDataset(Dataset):
 
 
 def train(args):
-    experiment = Experiment(api_key = '', project_name = '')
-    experiment.log_parameters({'lrate':args.lrate,
-                            'batch_size':args.batch_size,
-                            'net_type':args.net_type,
-                            'sample_z':args.sample_z,
-                            'diffusion_steps':args.diffusion_steps,
-                            'skill_model_filename':args.skill_model_filename,
-                            'normalize_latent':args.normalize_latent,
-                            'schedule': args.schedule})
+    #experiment = Experiment(api_key = '', project_name = '')
+    wandb.init(project="D4RL",
+            name='train_diffusion/'+args.skill_model_filename[:-4],
+            config={'lrate':args.lrate,
+                'batch_size':args.batch_size,
+                'net_type':args.net_type,
+                'sample_z':args.sample_z,
+                'diffusion_steps':args.diffusion_steps,
+                'skill_model_filename':args.skill_model_filename,
+                'normalize_latent':args.normalize_latent,
+                'schedule': args.schedule
+                }
+            )
 
     # get datasets set up
     torch_data_train = PriorDataset(
@@ -145,7 +151,7 @@ def train(args):
             n_batch += 1
             pbar.set_description(f"train loss: {loss_ep/n_batch:.4f}")
             optim.step()
-        experiment.log_metric("train_loss", loss_ep/n_batch, step=ep)
+        wandb.log({"train_diffusion/train_loss": loss_ep/n_batch})
 
         torch.save(nn_model, os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior.pt'))
 
@@ -163,7 +169,7 @@ def train(args):
                     loss_ep += loss.detach().item()
                     n_batch += 1
                     pbar.set_description(f"test loss: {loss_ep/n_batch:.4f}")
-            experiment.log_metric("test_loss", loss_ep/n_batch, step=ep)
+            wandb.log({"train_diffusion/test_loss": loss_ep/n_batch})
 
             if loss_ep < best_test_loss:
                 best_test_loss = loss_ep
