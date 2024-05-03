@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 python ../train_q_net.py \
+CUDA_VISIBLE_DEVICES=0 python ./train_q_net.py \
     --env antmaze-medium-diverse-v2 \
     --device 'cuda' \
     --n_epoch 300\
@@ -13,11 +13,12 @@ CUDA_VISIBLE_DEVICES=0 python ../train_q_net.py \
     --total_prior_samples 500\
     --gamma 0.995\
     --alpha 0.7\
-    --checkpoint_dir '/home/sundong/ldcq/ldcq/checkpoints'\
-    --dataset_dir '/home/sundong/ldcq/ldcq/data'\
+    --checkpoint_dir './checkpoints'\
+    --dataset_dir './datasets'\
     --skill_model_filename "skill_model_halfcheetah-expert-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_30_b_0.05_conditionalp_1_zdim_16_adist_normal_testSplit_0.2_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
     --do_diffusion 1 \
     --drop_prob 0.0 \
     --diffusion_steps 200\
     --cfg_weight 0.0\
-    --predict_noise 0
+    --predict_noise 0\
+

@@ -1,21 +1,21 @@
-CUDA_VISIBLE_DEVICES=0 python ../collect_offline_q_learning_dataset.py \
-    --env antmaze-medium-diverse-v2  \
+CUDA_VISIBLE_DEVICES=0 python ./collect_offline_q_learning_dataset.py \
+    --env antmaze-large-diverse-v2  \
     --device 'cuda' \
-    --checkpoint_dir '/home/sundong/ldcq/ldcq/checkpoints' \
-    --skill_model_filename "skill_model_halfcheetah-expert-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_30_b_0.05_conditionalp_1_zdim_16_adist_normal_testSplit_0.2_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
+    --checkpoint_dir '/home/yunho/ldcq/checkpoints' \
+    --skill_model_filename "skill_model_antmaze-large-diverse-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_30_b_0.05_conditionalp_1_zdim_16_adist_normal_testSplit_0.2_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
     --batch_size 128\
     --append_goals 0 \
     --save_z_dist 1 \
     --cum_rewards 0 \
     --do_diffusion 1 \
-    --num_diffusion_samples 500 \
-    --num_prior_samples 500 \
-    --diffusion_steps 200 \
+    --num_diffusion_samples 50 \
+    --num_prior_samples 50 \
+    --diffusion_steps 20 \
     --cfg_weight 0.0 \
     --extra_steps 5\
     --predict_noise 0 \
     --gamma 0.995\
-    --horizon 30\
+    --horizon 3\
     --stride 1\
     --beta 0.3\
     --a_dist "normal"\

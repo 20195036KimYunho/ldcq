@@ -48,7 +48,7 @@ nohup ./gpu7_train_4_collect_q_learning.sh > ./log/gpu7_04.24/gpu7_4_04.16.log 2
 
 nohup maze2d-large-v1/gpu0_train_5_q_learning.sh > ./log/gpu0_04.26/gpu0_5_04.26.log 2>&1 &
 nohup antmaze-medium-diverse-v2/gpu1_train_5_q_learning.sh > ./log/gpu1_04.26/gpu1_5_04.26.log 2>&1 &
-nohup antmaze-large-diverse-v2/gpu2_train_5_q_learning.sh > ./log/gpu2_04.26/gpu2_5_04.26.log 2>&1 &
+nohup antmaze-large-diverse-v2/gpu2_train_5_q_learning.sh > ./log/gpu2_05.01/gpu2_5_05.01.log 2>&1 &
 nohup halfcheetah-medium-expert-v2/gpu3_train_5_q_learning.sh > ./log/gpu3_04.16/gpu3_5_04.16.log 2>&1 &
 nohup antmaze-large-diverse-v2/gpu2_train_5_q_learning_test.sh > ./log/gpu2_04.29/gpu2_5_04.29.log 2>&1 &
 nohup ./gpu5_train_5_q_learning.sh > ./log/gpu5_04.16_origin_loss/gpu5_5_04.16.log 2>&1 &

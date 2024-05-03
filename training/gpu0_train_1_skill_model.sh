@@ -1,17 +1,18 @@
-CUDA_VISIBLE_DEVICES=0 python ../train_skills.py \
-    --env maze2d-large-v1\
+CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
+    --env antmaze-medium-diverse-v2 \
     --beta 0.05\
     --conditional_prior 1\
+    --train_diffusion_prior 0\
     --z_dim 16\
     --lr 5e-5\
     --policy_decoder_type autoregressive\
-    --state_decoder_type none\
+    --state_decoder_type mlp\
     --a_dist normal\
     --horizon 30\
     --separate_test_trajectories 0\
-    --test_split 0.2\
+    --test_split 0.0\
     --get_rewards 1\
-    --num_epochs 100 \
-    --start_training_state_decoder_after 1000 \
-    --normalize_latent 0\
+    --num_epochs 10 \
+    --start_training_state_decoder_after 0 \
+    --normalize_latent 1\
     --append_goals 0
