@@ -15,6 +15,7 @@ from models.diffusion_models import (
     Model_cnn_mlp,
     Model_Cond_Diffusion,
 )
+from models.contrastive import cosine_sim, MarginCosineProduct
 
 class AbstractDynamics(nn.Module):
     '''
@@ -140,13 +141,13 @@ class LowLevelPolicy(nn.Module):
     P(a_t|s_t,z) is our "low-level policy", so this is the feedback policy the agent runs while executing skill described by z.
     See Encoder and Decoder for more description
     '''
-    def __init__(self,state_dim,a_dim,z_dim,h_dim,a_dist,fixed_sig=None):
+    def __init__(self,state_dim,a_dim,z_dim,h_dim,a_dist,fixed_sig=None,num_categocical_interval=10):
 
         super(LowLevelPolicy,self).__init__()
         
         self.layers = nn.Sequential(nn.Linear(state_dim+z_dim,h_dim),nn.ReLU(),nn.Linear(h_dim,h_dim),nn.ReLU())
         if a_dist=='softmax':
-            self.mean_layer = nn.Sequential(nn.Linear(h_dim,h_dim),nn.ReLU(),nn.Linear(h_dim,21)) #ONLY FOR AUTOREGRESSIVE POLICY DECODER
+            self.mean_layer = nn.Sequential(nn.Linear(h_dim,h_dim),nn.ReLU(),nn.Linear(h_dim,2*num_categocical_interval+1)) #ONLY FOR AUTOREGRESSIVE POLICY DECODER
             self.act = nn.Softmax(dim=2)
         else:
             self.mean_layer = nn.Sequential(nn.Linear(h_dim,h_dim),nn.ReLU(),nn.Linear(h_dim,a_dim))
@@ -154,6 +155,7 @@ class LowLevelPolicy(nn.Module):
         self.a_dist = a_dist
         self.a_dim = a_dim
         self.fixed_sig = fixed_sig
+        self.num_categocical_interval=num_categocical_interval
 
     def forward(self,state,z):
         '''
@@ -199,7 +201,7 @@ class LowLevelPolicy(nn.Module):
      
     def reparameterize(self, mean, std):
         if self.a_dist=='softmax':
-            intervals = torch.linspace(-1, 1, 21).cuda()
+            intervals = torch.linspace(-1, 1, 2*self.num_categocical_interval+1).cuda()
             max_idx = torch.argmax(mean, dim=2).unsqueeze(2)
             max_interval = intervals[max_idx]
             return max_interval
@@ -213,12 +215,14 @@ class AutoregressiveLowLevelPolicy(nn.Module):
     P(a_t|s_t,z) is our "low-level policy", so this is the feedback policy the agent runs while executing skill described by z.
     See Encoder and Decoder for more description
     '''
-    def __init__(self,state_dim,a_dim,z_dim,h_dim,a_dist,fixed_sig=None):
+    def __init__(self,state_dim,a_dim,z_dim,h_dim,a_dist,fixed_sig=None,num_categocical_interval=10):
 
         super(AutoregressiveLowLevelPolicy,self).__init__()
-        self.policy_components = nn.ModuleList([LowLevelPolicy(state_dim+i,1,z_dim,h_dim,a_dist=a_dist,fixed_sig=fixed_sig) for i in range(a_dim)])
+        self.num_categocical_interval=num_categocical_interval
+        self.policy_components = nn.ModuleList([LowLevelPolicy(state_dim+i,1,z_dim,h_dim,a_dist=a_dist,fixed_sig=fixed_sig,num_categocical_interval=num_categocical_interval) for i in range(a_dim)])
         self.a_dim = a_dim
         self.a_dist = a_dist
+        
         
     def forward(self,state,actions,z):
         '''
@@ -283,7 +287,7 @@ class AutoregressiveLowLevelPolicy(nn.Module):
 
     def reparameterize(self, mean, std):
         if self.a_dist=='softmax':
-            intervals = torch.linspace(-1, 1, 21).cuda()
+            intervals = torch.linspace(-1, 1, 2*self.num_categocical_interval+1).cuda()
             # max_idx = torch.distributions.categorical.Categorical(mean).sample()
             max_idx = torch.argmax(mean, dim=2)
             max_interval = intervals[max_idx]
@@ -415,7 +419,7 @@ class Decoder(nn.Module):
     -embed z
     -Pass into fully connected network to get "state T features"
     '''
-    def __init__(self,state_dim,a_dim,z_dim,h_dim,a_dist,fixed_sig,state_decoder_type,policy_decoder_type,per_element_sigma):
+    def __init__(self,state_dim,a_dim,z_dim,h_dim,a_dist,fixed_sig,state_decoder_type,policy_decoder_type,per_element_sigma,num_categocical_interval=10):
 
         super(Decoder,self).__init__()
         
@@ -430,9 +434,9 @@ class Decoder(nn.Module):
             self.abstract_dynamics = AutoregressiveStateDecoder(state_dim,z_dim,h_dim)
 
         if policy_decoder_type == 'mlp':
-            self.ll_policy = LowLevelPolicy(state_dim,a_dim,z_dim,h_dim, a_dist,fixed_sig=fixed_sig)
+            self.ll_policy = LowLevelPolicy(state_dim,a_dim,z_dim,h_dim, a_dist,fixed_sig=fixed_sig,num_categocical_interval=num_categocical_interval)
         elif policy_decoder_type == 'autoregressive':
-            self.ll_policy = AutoregressiveLowLevelPolicy(state_dim,a_dim,z_dim,h_dim,a_dist=a_dist,fixed_sig=None)
+            self.ll_policy = AutoregressiveLowLevelPolicy(state_dim,a_dim,z_dim,h_dim,a_dist=a_dist,fixed_sig=None,num_categocical_interval=num_categocical_interval)
 
         self.emb_layer  = nn.Linear(state_dim+z_dim,h_dim)
         self.fc = nn.Sequential(nn.Linear(state_dim+z_dim,h_dim),nn.ReLU(),nn.Linear(h_dim,h_dim),nn.ReLU())
@@ -544,7 +548,7 @@ class GenerativeModel(nn.Module):
 
 class SkillModel(nn.Module):
     def __init__(self,state_dim,a_dim,z_dim,h_dim,horizon,a_dist='normal',beta=1.0,fixed_sig=None,encoder_type='gru',state_decoder_type='mlp',policy_decoder_type='mlp',
-                 per_element_sigma=True,conditional_prior=True,train_diffusion_prior=False,normalize_latent=False,num_categocical_interval=10):
+                 per_element_sigma=True,conditional_prior=True,train_diffusion_prior=False,normalize_latent=False,num_categocical_interval=10,use_contrastive=False,contrastive_ratio=1.0):
         super(SkillModel, self).__init__()
 
         self.state_dim = state_dim # state dimension
@@ -558,13 +562,17 @@ class SkillModel(nn.Module):
         self.a_dist = a_dist
         self.normalize_latent = normalize_latent
         self.num_categocical_interval = num_categocical_interval
+        self.use_contrastive = use_contrastive
+        self.contrastive_ratio = contrastive_ratio
+        self.z_dim = z_dim
+        self.h_dim = h_dim
         
         if encoder_type == 'gru':
             self.encoder = GRUEncoder(state_dim,a_dim,z_dim,h_dim,normalize_latent=normalize_latent)
         elif encoder_type == 'transformer':
             self.encoder = TransformEncoder(state_dim,a_dim,z_dim,h_dim,horizon)
 
-        self.decoder = Decoder(state_dim,a_dim,z_dim,h_dim, a_dist, fixed_sig=fixed_sig,state_decoder_type=state_decoder_type,policy_decoder_type=policy_decoder_type,per_element_sigma=per_element_sigma)
+        self.decoder = Decoder(state_dim,a_dim,z_dim,h_dim, a_dist, fixed_sig=fixed_sig,state_decoder_type=state_decoder_type,policy_decoder_type=policy_decoder_type,per_element_sigma=per_element_sigma,num_categocical_interval=self.num_categocical_interval)
         if conditional_prior:
             self.prior   = Prior(state_dim,z_dim,h_dim)
             self.gen_model = GenerativeModel(self.decoder,self.prior)
@@ -582,7 +590,16 @@ class SkillModel(nn.Module):
                 drop_prob=0.0,
                 guide_w=0.0,
             )
-
+        
+        if self.a_dist =='softmax' and self.use_contrastive:
+            self.contrastive_a = [MarginCosineProduct(z_dim, 2*num_categocical_interval+1).cuda() for _ in range(self.a_dim)]
+            # self.contrastive_a_0 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
+            # self.contrastive_a_1 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
+            # self.contrastive_a_2 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
+            # self.contrastive_a_3 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
+            # self.contrastive_a_4 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
+            # self.contrastive_a_5 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
+        
         self.beta = beta
 
 
@@ -727,12 +744,54 @@ class SkillModel(nn.Module):
             diffusion_loss = self.diffusion_prior.loss_on_batch(states[:, 0, :], z_sampled[:,0,:].detach(), predict_noise=0)
         else:
             diffusion_loss = 0.0
+            
+        
+        if self.decoder.ll_policy.a_dist == 'softmax' and self.use_contrastive:
+            criterion = nn.CrossEntropyLoss()
+            z_tiled = z_sampled.tile([1, actions.shape[1], 1])
+            z_tiled = z_tiled.reshape(-1, self.z_dim).contiguous()  # (batch * block_size, z_dim)
+            
+            # print(actions.shape)
+            # print(actions)
+            
+            a_reshape = actions.reshape(-1, self.a_dim)
+            
+            contrastive_loss_a = 0.0
+            for d in range(self.a_dim):
+                # print("z_tiled.shape: ", z_tiled.shape)
+                # print("a_reshape[:, d].shape: ", a_reshape[:, d].shape)
+                logit_a = self.contrastive_a[d](z_tiled, a_reshape[:, d])
+                contrastive_loss_a += criterion(logit_a, a_reshape[:, d])
+                
+            # logit_a = self.contrastive_a_0(z_tiled, a_reshape[:, 0])
+            # contrastive_loss_a += criterion(logit_a, a_reshape[:, 0])
+            
+            # logit_a = self.contrastive_a_1(z_tiled, a_reshape[:, 1])
+            # contrastive_loss_a += criterion(logit_a, a_reshape[:, 1])
+            
+            # logit_a = self.contrastive_a_2(z_tiled, a_reshape[:, 2])
+            # contrastive_loss_a += criterion(logit_a, a_reshape[:, 2])
+            
+            # logit_a = self.contrastive_a_3(z_tiled, a_reshape[:, 3])
+            # contrastive_loss_a += criterion(logit_a, a_reshape[:, 3])
+            
+            # logit_a = self.contrastive_a_4(z_tiled, a_reshape[:, 4])
+            # contrastive_loss_a += criterion(logit_a, a_reshape[:, 4])
+            
+            # logit_a = self.contrastive_a_5(z_tiled, a_reshape[:, 5])
+            # contrastive_loss_a += criterion(logit_a, a_reshape[:, 5])
+
+            contrastive_loss = self.contrastive_ratio * contrastive_loss_a
+        else:
+            contrastive_loss = 0.0
+        
+        loss_tot = a_loss + self.beta * kl_loss + diffusion_loss + contrastive_loss
 
         if state_decoder:
             loss_tot += s_T_loss
-            return  loss_tot, s_T_loss, a_loss, kl_loss, diffusion_loss
+            return  loss_tot, s_T_loss, a_loss, kl_loss, diffusion_loss, contrastive_loss
         else:
-            return  loss_tot, a_loss, kl_loss, diffusion_loss
+            return  loss_tot, a_loss, kl_loss, diffusion_loss, contrastive_loss
 
 # """미사용 코드"""
     # def get_expected_cost(self, s0, skill_seq, goal_states):

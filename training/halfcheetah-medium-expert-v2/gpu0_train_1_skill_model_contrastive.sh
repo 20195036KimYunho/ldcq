@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=2 python ./train_skills copy.py \
+CUDA_VISIBLE_DEVICES=0 python ./train_skills_copy.py \
     --env halfcheetah-medium-expert-v2\
     --train_diffusion_prior 0\
     --z_dim 16\
@@ -14,10 +14,11 @@ CUDA_VISIBLE_DEVICES=2 python ./train_skills copy.py \
     --a_dist softmax\
     --beta 0.1\
     --conditional_prior 1\
-    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/categorical-halfcheetah-medium-expert-20'\
-    --dataset_dir '/workspace/ldcq/ldcq/data' \
+    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/contrastive-halfcheetah-medium-expert-20'\
+    --dataset_dir '/workspace/ldcq/ldcq/data/contrastive-halfcheetah-medium-expert-20' \
     --use_contrastive 1 \
-    --contrastive_ratio 0.5 \
+    --contrastive_ratio 0.1 \
     --num_categorical_interval 10 \
     --append_goals 0 \
     --horizon 20
+

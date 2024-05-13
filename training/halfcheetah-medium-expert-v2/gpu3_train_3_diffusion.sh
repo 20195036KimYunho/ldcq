@@ -8,9 +8,9 @@ CUDA_VISIBLE_DEVICES=3 python ./train_diffusion.py \
     --n_hidden 512 \
     --test_split 0.0 \
     --sample_z 0 \
-    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints' \
+    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/categorical-halfcheetah-medium-expert-20' \
     --dataset_dir '/workspace/ldcq/ldcq/data' \
-    --skill_model_filename 'skill_model_halfcheetah-medium-expert-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_20_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth' \
+    --skill_model_filename 'skill_model_halfcheetah-medium-expert-v2_encoderType(gru)_state_dec_mlp_policy_dec_autoregressive_H_20_b_0.1_conditionalp_1_zdim_16_adist_softmax_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth' \
     --append_goals 0 \
     --drop_prob 0.1 \
     --diffusion_steps 100 \

@@ -1,8 +1,8 @@
 CUDA_VISIBLE_DEVICES=6 python ./collect_offline_q_learning_dataset.py \
-    --env halfcheetah-medium-v2  \
+    --env halfcheetah-medium-v2 \
     --device 'cuda' \
     --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints' \
-    --skill_model_filename "skill_model_halfcheetah-medium-v2_encoderType(gru)_state_dec_mlp_policy_dec_autoregressive_H_10_b_0.05_conditionalp_1_zdim_16_adist_normal_testSplit_0.2_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
+    --skill_model_filename "skill_model_halfcheetah-medium-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_10_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
     --batch_size 128\
     --append_goals 0 \
     --save_z_dist 1 \
