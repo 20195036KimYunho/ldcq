@@ -7,7 +7,7 @@ parent_folder=os.path.dirname(os.path.dirname(curr_folder))
 sys.path.append(parent_folder) 
 
 from argparse import ArgumentParser
-#from comet_ml import Experiment
+from comet_ml import Experiment
 
 import gym
 import pickle
@@ -98,7 +98,7 @@ def PER_buffer_filler(dataset_dir, filename, test_prop=0.1, sample_z=False, samp
     
     # load into PER buffer
     replay_buffer = NaivePrioritizedBuffer(n_train, prob_alpha=alpha)
-    for i in tqdm(range(n_train)):
+    for i in range(n_train):
         if not 'maze' in filename and not 'kitchen' in filename:
             replay_buffer.push(state_all[i], latent_all[i], rewards_all[i], sT_all[i], terminals_all[i], max_latents_all[i])
         else:
@@ -118,7 +118,7 @@ def train(args):
         y_dim = torch_data_train.latent_all.shape[1]
         
         dataload_train = DataLoader(
-            torch_data_train, batch_size=args.batch_size, shuffle=True, num_workers=0
+            torch_data_train, batch_size=args.batch_size, shuffle=True, num_workers=4
         )
     '''
 
@@ -149,9 +149,9 @@ def train(args):
     #고정돼 있어서 shae is invalid for input size 에러가 남. num_prior_samples 값을 넣어주도록 설정
     #아직 total_prior_samples와 num_prior_samples의 차이는 모르겠어서 동일하게 넣어줌
     #나중에 argument를 새로 만들지 결정해야 함
-    dqn_agent = DDQN(state_dim = x_shape, z_dim=y_dim, diffusion_prior=model, num_prior_samples=args.total_prior_samples,total_prior_samples=args.total_prior_samples, gamma=args.gamma)
-    dqn_agent.learn(dataload_train=per_buffer if args.per_buffer else dataload_train, n_epochs=args.n_epoch, diffusion_model_name=args.skill_model_filename[:-4], cfg_weight=args.cfg_weight, per_buffer = args.per_buffer, batch_size = args.batch_size)
-
+    dqn_agent = DDQN(state_dim = x_shape, z_dim=y_dim, diffusion_prior=model, num_prior_samples=args.total_prior_samples,total_prior_samples=args.total_prior_samples, gamma=args.gamma,horizon=args.horizon, lr=args.lr, device=args.device)
+    
+    dqn_agent.learn(env_name=args.env, dataload_train=per_buffer if args.per_buffer else dataload_train, n_epochs=args.n_epoch, diffusion_model_name=args.skill_model_filename[:-4], cfg_weight=args.cfg_weight, per_buffer = args.per_buffer, batch_size = args.batch_size,q_checkpoint_dir=args.q_checkpoint_dir)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -173,6 +173,7 @@ if __name__ == "__main__":
     parser.add_argument('--alpha', type=float, default=0.6)
 
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
+    parser.add_argument('--q_checkpoint_dir', type=str, default=parent_folder+'/q_checkpoints/')
     parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data/')
     parser.add_argument('--skill_model_filename', type=str) #####
 
@@ -182,6 +183,7 @@ if __name__ == "__main__":
     parser.add_argument('--cfg_weight', type=float, default=0.0)
     parser.add_argument('--predict_noise', type=int, default=0)
 
+    parser.add_argument('--horizon', type=int, default=30)
     args = parser.parse_args()
 
     train(args)

@@ -6,7 +6,7 @@ CUDA_VISIBLE_DEVICES=2 python ./train_skills.py \
     --z_dim 16\
     --lr 5e-5\
     --policy_decoder_type autoregressive\
-    --state_decoder_type none\
+    --state_decoder_type mlp\
     --a_dist normal\
     --horizon 20\
     --separate_test_trajectories 0\

@@ -3,11 +3,11 @@ CUDA_VISIBLE_DEVICES=2 python ./plan_skills_diffusion_franka.py \
     --device 'cuda'\
     --num_evals 100\
     --num_parallel_envs 1\
-    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/halfcheetah-medium-expert-20-none'\
+    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/contrastive-halfcheetah-medium-expert-20'\
     --q_checkpoint_dir '/workspace/ldcq/ldcq/q_checkpoints/halfcheetah-medium-expert-20-none-200'\
     --q_checkpoint_steps 250\
     --dataset_dir '/workspace/ldcq/ldcq/data'\
-    --skill_model_filename "skill_model_halfcheetah-medium-expert-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_20_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
+    --skill_model_filename "halfcheetah-medium-expert-v2_H_20_adist_softmax_use_contrastive_1_num_categorical_interval_10_contrastive_ratio_0.05_getrewards_1_appendgoals_0_best.pth" \
     --append_goals 0\
     --policy diffusion_prior\
     --num_diffusion_samples 300\
@@ -17,9 +17,9 @@ CUDA_VISIBLE_DEVICES=2 python ./plan_skills_diffusion_franka.py \
     --predict_noise 0\
     --exec_horizon 20\
     --beta 0.1\
-    --a_dist normal\
+    --a_dist softmax\
     --encoder_type gru\
-    --state_decoder_type none \
+    --state_decoder_type mlp \
     --policy_decoder_type autoregressive\
     --per_element_sigma 1\
     --conditional_prior 1\
@@ -27,4 +27,7 @@ CUDA_VISIBLE_DEVICES=2 python ./plan_skills_diffusion_franka.py \
     --z_dim 16\
     --horizon 20\
     --render 0\
-    --diffusion_checkpoint final
+    --diffusion_checkpoint 100\
+    --use_contrastive 1 \
+    --contrastive_ratio 0.05 \
+    --num_categorical_interval 10

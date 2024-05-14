@@ -14,10 +14,10 @@ import random
 import gym
 import d4rl
 import matplotlib
+matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
-matplotlib.use('TkAgg')
 from mujoco_py import GlfwContext
-GlfwContext(offscreen=True)
+# GlfwContext(offscreen=False)
 
 from models.diffusion_models import (
     Model_mlp,
@@ -393,9 +393,12 @@ def evaluate(args):
                              policy_decoder_type=args.policy_decoder_type,
                              per_element_sigma=args.per_element_sigma,
                              conditional_prior=args.conditional_prior,
+                             num_categocical_interval=args.num_categorical_interval,
+                             use_contrastive=args.use_contrastive,
+                             contrastive_ratio=args.contrastive_ratio
                              ).to(args.device)
 
-    skill_model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename))['model_state_dict'])
+    skill_model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename))['model_state_dict'],strict=False)
     skill_model.eval()
 
     envs = [gym.make(args.env,render_height=128,render_width=128) for _ in range(args.num_parallel_envs)]
@@ -497,6 +500,8 @@ if __name__ == "__main__":
     parser.add_argument('--policy', type=str, default='greedy') #greedy/exhaustive/q
     parser.add_argument('--num_diffusion_samples', type=int, default=50)
     parser.add_argument('--diffusion_steps', type=int, default=100)
+    parser.add_argument('--diffusion_checkpoint', type=str, default='best')
+
     parser.add_argument('--cfg_weight', type=float, default=0.0)
     parser.add_argument('--planning_depth', type=int, default=3)
     parser.add_argument('--extra_steps', type=int, default=5)
@@ -516,6 +521,10 @@ if __name__ == "__main__":
 
     parser.add_argument('--render', type=int, default=1)
     parser.add_argument('--visualize', type=int, default=0)
+
+    parser.add_argument('--num_categorical_interval', type=int, default=10)
+    parser.add_argument('--use_contrastive', type=int, default=0)
+    parser.add_argument('--contrastive_ratio', type=float, default=1.0)
 
     args = parser.parse_args()
 

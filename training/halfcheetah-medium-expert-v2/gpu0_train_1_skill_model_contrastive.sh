@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 python ./train_skills_copy.py \
+CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
     --env halfcheetah-medium-expert-v2\
     --train_diffusion_prior 0\
     --z_dim 16\

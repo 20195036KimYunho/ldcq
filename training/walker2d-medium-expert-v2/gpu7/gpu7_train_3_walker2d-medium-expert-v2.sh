@@ -10,7 +10,7 @@ CUDA_VISIBLE_DEVICES=7 python ./train_diffusion.py \
     --sample_z 0 \
     --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints' \
     --dataset_dir '/workspace/ldcq/ldcq/data' \
-    --skill_model_filename "skill_model_halfcheetah-expert-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_20_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.1_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
+    --skill_model_filename "skill_model_walker2d-medium-expert-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_20_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.1_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
     --append_goals 0 \
     --drop_prob 0.1 \
     --diffusion_steps 100 \

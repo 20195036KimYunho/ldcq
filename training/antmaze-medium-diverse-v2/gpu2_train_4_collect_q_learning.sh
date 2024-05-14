@@ -1,9 +1,9 @@
 CUDA_VISIBLE_DEVICES=2 python ./collect_offline_q_learning_dataset.py \
-    --env antmaze-large-diverse-v2  \
+    --env antmaze-medium-diverse-v2_1  \
     --device 'cuda' \
-    --checkpoint_dir 'ldcq/ldcq/checkpoints' \
-    --skill_model_filename 'skill_model_antmaze-large-diverse-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_30_b_0.05_conditionalp_1_zdim_16_adist_normal_testSplit_0.2_separatetest_0_getrewards_1_appendgoals_0_best.pth' \
-    --batch_size 128\
+    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/antmaze-medium-v2_1-30-naive' \
+    --skill_model_filename 'skill_model_antmaze-medium-diverse-v2_1_encoderType(gru)_state_dec_mlp_policy_dec_autoregressive_H_30_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth' \
+    --batch_size 1024\
     --append_goals 0 \
     --save_z_dist 1 \
     --cum_rewards 0 \

@@ -7,7 +7,7 @@ CUDA_VISIBLE_DEVICES=7 python ./train_skills.py \
     --policy_decoder_type autoregressive\
     --state_decoder_type none\
     --a_dist normal\
-    --horizon 20\
+    --horizon 10\
     --separate_test_trajectories 0\
     --test_split 0.0\
     --get_rewards 1\

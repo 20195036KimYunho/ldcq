@@ -1,5 +1,5 @@
 CUDA_VISIBLE_DEVICES=2 python ./train_skills.py \
-    --env antmaze-medium-diverse-v2\
+    --env antmaze-medium-diverse-v2_1\
     --beta 0.1\
     --conditional_prior 1\
     --train_diffusion_prior 0\
@@ -8,11 +8,11 @@ CUDA_VISIBLE_DEVICES=2 python ./train_skills.py \
     --policy_decoder_type autoregressive\
     --state_decoder_type mlp\
     --a_dist normal\
-    --horizon 20\
+    --horizon 30\
     --separate_test_trajectories 0\
     --test_split 0.0\
     --get_rewards 1\
     --num_epochs 100 \
     --start_training_state_decoder_after 101\
     --normalize_latent 0\
-    --append_goals  1
+    --append_goals  0

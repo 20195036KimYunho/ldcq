@@ -15,9 +15,9 @@ import gym
 import d4rl
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 from mujoco_py import GlfwContext
-GlfwContext(offscreen=True)
+# GlfwContext(offscreen=True)
 
 from models.diffusion_models import (
     Model_mlp,
@@ -418,6 +418,9 @@ def evaluate(args):
                              policy_decoder_type=args.policy_decoder_type,
                              per_element_sigma=args.per_element_sigma,
                              conditional_prior=args.conditional_prior,
+                             num_categocical_interval=args.num_categorical_interval,
+                             use_contrastive=args.use_contrastive,
+                             contrastive_ratio=args.contrastive_ratio
                              ).to(args.device)
 
     skill_model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename))['model_state_dict'])
@@ -446,7 +449,10 @@ def evaluate(args):
     dqn_agent = None
 
     if args.policy == 'greedy' or args.policy == 'exhaustive' or args.policy == 'q' or args.policy == 'diffusion_prior':
-        diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior_best.pt')).to(args.device)
+        if args.diffusion_checkpoint != 'best':
+            diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + f'_{args.diffusion_checkpoint}_.pt')).to(args.device)
+        else:
+          diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior_best.pt')).to(args.device)
 
         diffusion_model = Model_Cond_Diffusion(
             diffusion_nn_model,
@@ -541,6 +547,11 @@ if __name__ == "__main__":
 
     parser.add_argument('--render', type=int, default=1)
     parser.add_argument('--visualize', type=int, default=0)
+
+    parser.add_argument('--diffusion_checkpoint', type=str, default='best')
+    parser.add_argument('--num_categorical_interval', type=int, default=10)
+    parser.add_argument('--use_contrastive', type=int, default=0)
+    parser.add_argument('--contrastive_ratio', type=float, default=1.0)
 
     args = parser.parse_args()
 

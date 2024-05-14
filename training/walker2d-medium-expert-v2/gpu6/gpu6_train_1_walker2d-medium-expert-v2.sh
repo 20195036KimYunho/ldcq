@@ -9,7 +9,7 @@ CUDA_VISIBLE_DEVICES=6 python ./train_skills.py \
     --a_dist normal\
     --horizon 20\
     --separate_test_trajectories 0\
-    --test_split 0.0\
+    --test_split 0.1\
     --get_rewards 1\
     --num_epochs 100 \
     --start_training_state_decoder_after 0 \

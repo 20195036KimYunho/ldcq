@@ -24,7 +24,7 @@ from models.skill_model import SkillModel
 from utils.utils import get_dataset
 
 def collect_data(args):
-    dataset_file = parent_folder+'/data/'+args.env+'.pkl'
+    dataset_file = os.path.join(args.dataset_dir,f"{args.env}.pkl")
     with open(dataset_file, "rb") as f:
         dataset = pickle.load(f)
 
@@ -50,12 +50,19 @@ def collect_data(args):
                              policy_decoder_type=args.policy_decoder_type,
                              per_element_sigma=args.per_element_sigma,
                              conditional_prior=args.conditional_prior,
+                             num_categocical_interval=args.num_categorical_interval,
+                             use_contrastive=args.use_contrastive,
+                             contrastive_ratio=args.contrastive_ratio
                              ).to(args.device)
-    skill_model.load_state_dict(checkpoint['model_state_dict'])
+    skill_model.load_state_dict(checkpoint['model_state_dict'], strict=False)
     skill_model.eval()
 
     if args.do_diffusion:
-        diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior_best.pt')).to(args.device)
+        if args.diffusion_checkpoint != 'best':
+            diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + f'_{args.diffusion_checkpoint}_.pt')).to(args.device)
+        else:
+          diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior_best.pt')).to(args.device)
+        
 
         diffusion_model = Model_Cond_Diffusion(
             diffusion_nn_model,
@@ -83,7 +90,7 @@ def collect_data(args):
     train_loader = DataLoader(
         inputs_train,
         batch_size=args.batch_size,
-        num_workers=0)
+        num_workers=4)
 
     states_gt = np.zeros((inputs_train.shape[0], state_dim)) #states_gt = np.zeros((inputs_train.shape[0], state_dim+2*args.append_goals))
     latent_gt = np.zeros((inputs_train.shape[0], args.z_dim))
@@ -138,18 +145,18 @@ def collect_data(args):
         if args.save_z_dist:
             latent_std_gt[start_idx : end_idx] = output_std.detach().cpu().numpy().squeeze(1)
 
-    np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_states.npy', states_gt)
-    np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_latents.npy', latent_gt)
-    np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_sT.npy', sT_gt)
-    np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_rewards.npy', rewards_gt)
+    np.save(os.path.join(args.dataset_dir,args.skill_model_filename[:-4] + '_states.npy'), states_gt)
+    np.save(os.path.join(args.dataset_dir,args.skill_model_filename[:-4]+ '_latents.npy'), latent_gt)
+    np.save(os.path.join(args.dataset_dir,args.skill_model_filename[:-4] + '_sT.npy'), sT_gt)
+    np.save(os.path.join(args.dataset_dir,args.skill_model_filename[:-4]+ '_rewards.npy'), rewards_gt)
     if args.do_diffusion:
-        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_sample_latents.npy', diffusion_latents_gt)
+        np.save(os.path.join(args.dataset_dir,args.skill_model_filename[:-4] + '_sample_latents.npy'), diffusion_latents_gt)
     else:
-        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_prior_latents.npy', prior_latents_gt)
+        np.save(os.path.join(args.dataset_dir ,args.skill_model_filename[:-4] +'_prior_latents.npy'), prior_latents_gt)
     if args.save_z_dist:
-        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_latents_std.npy', latent_std_gt)
+        np.save(os.path.join(args.dataset_dir, args.skill_model_filename[:-4]+'_latents_std.npy'), latent_std_gt)
     if not 'maze' in args.env and not 'kitchen' in args.env:
-        np.save(parent_folder+'/data/' + args.skill_model_filename[:-4] + '_terminals.npy', terminals_gt)
+        np.save(os.path.join(args.dataset_dir,args.skill_model_filename[:-4]+'_terminals.npy'), terminals_gt)
 
 
 if __name__ == '__main__':
@@ -160,6 +167,7 @@ if __name__ == '__main__':
     parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2') #####
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints/')
+    parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data/')
     parser.add_argument('--skill_model_filename', type=str) #####
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--append_goals', type=int, default=0) #####
@@ -187,6 +195,12 @@ if __name__ == '__main__':
     parser.add_argument('--h_dim', type=int, default=256)
     parser.add_argument('--z_dim', type=int, default=16)
 
+    
+    parser.add_argument('--diffusion_checkpoint', type=str, default='best') 
+    
+    parser.add_argument('--num_categorical_interval', type=int, default=10)
+    parser.add_argument('--use_contrastive', type=int, default=0)
+    parser.add_argument('--contrastive_ratio', type=float, default=1.0)
     args = parser.parse_args()
 
     collect_data(args)

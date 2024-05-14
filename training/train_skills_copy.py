@@ -168,7 +168,7 @@ if test_split > 0.0:
     obs_chunks_test = dataset['observations_test']
     action_chunks_test = dataset['actions_test']
 
-filename = env_name+'_H_'+str(H)+'_adist_'+a_dist+'_use_contrastive_'+str(use_contrastive)+'num_categorical_interval'+str(num_categorical_interval)+'contrastive_ratio'+str(contrastive_ratio)+'_getrewards_'+str(args.get_rewards)+'_appendgoals_'+str(args.append_goals)
+filename = env_name+'_H_'+str(H)+'_adist_'+a_dist+'_use_contrastive_'+str(use_contrastive)+'_num_categorical_interval_'+str(num_categorical_interval)+'_contrastive_ratio_'+str(contrastive_ratio)+'_getrewards_'+str(args.get_rewards)+'_appendgoals_'+str(args.append_goals)
 
 # filename = 'skill_model_'+env_name+'_encoderType('+encoder_type+')_state_dec_'+str(state_decoder_type)+'_policy_dec_'+str(policy_decoder_type)+'_H_'+str(H)+'_b_'+str(beta)+'_conditionalp_'+str(conditional_prior)+'_zdim_'+str(z_dim) + \
 #     '_adist_'+a_dist+'_testSplit_'+str(test_split)+'_separatetest_'+str(args.separate_test_trajectories)+'_getrewards_'+str(args.get_rewards)+'_appendgoals_'+str(args.append_goals)
@@ -311,5 +311,5 @@ for i in range(n_epochs):
 
     print('Loss: ', loss)
     print(i)
-    wandb.log({"train_skill/mean train loss": loss.item()},step=i)
+    wandb.log({"train_skill/mean train loss": loss.item(), "epoch": i})
 

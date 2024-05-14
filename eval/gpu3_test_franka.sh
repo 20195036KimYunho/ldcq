@@ -3,12 +3,13 @@ CUDA_VISIBLE_DEVICES=3 python ./plan_skills_diffusion_franka.py \
     --device 'cuda'\
     --num_evals 100\
     --num_parallel_envs 1\
-    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/categorical-halfcheetah-medium-expert-20'\
-    --q_checkpoint_dir '/workspace/ldcq/ldcq/q_checkpoints/categorical-halfcheetah-medium-expert-20'\
-    --skill_model_filename 'skill_model_halfcheetah-medium-expert-v2_encoderType(gru)_state_dec_mlp_policy_dec_autoregressive_H_20_b_0.1_conditionalp_1_zdim_16_adist_softmax_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth' \
-    --q_checkpoint_steps 276\
+    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/contrastive-halfcheetah-medium-expert-20'\
+    --q_checkpoint_dir '/workspace/ldcq/ldcq/q_checkpoints/halfcheetah-medium-expert-20-none-200'\
+    --q_checkpoint_steps 250\
+    --dataset_dir '/workspace/ldcq/ldcq/data'\
+    --skill_model_filename "halfcheetah-medium-expert-v2_H_20_adist_softmax_use_contrastive_1num_categorical_interval10contrastive_ratio0.1_getrewards_1_appendgoals_0_best.pth" \
     --append_goals 0\
-    --policy q\
+    --policy diffusion_prior\
     --num_diffusion_samples 300\
     --diffusion_steps 100\
     --cfg_weight 0.0\
@@ -26,4 +27,7 @@ CUDA_VISIBLE_DEVICES=3 python ./plan_skills_diffusion_franka.py \
     --z_dim 16\
     --horizon 20\
     --render 0\
-    --diffusion_checkpoint best
+    --diffusion_checkpoint 100\
+    --use_contrastive 1 \
+    --contrastive_ratio 0.1 \
+    --num_categorical_interval 10
