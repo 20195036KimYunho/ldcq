@@ -139,6 +139,18 @@ use_contrastive = args.use_contrastive
 contrastive_ratio= args.contrastive_ratio
 env_name = args.env
 
+# 디렉토리가 존재하는지 확인
+if not os.path.exists(checkpoint_dir):
+    ValueError("checkpoint_dir 폴더를 만드세요")
+else:
+    print(f"checkpoint_dir 디렉토리가 존재합니다: {checkpoint_dir}")
+    
+if not os.path.exists(dataset_dir):
+    ValueError("dataset_dir 폴더를 만드세요")
+else:
+    print(f"dataset_dir 디렉토리가 존재합니다: {dataset_dir}\n")
+
+
 dataset_file = os.path.join(dataset_dir,env_name+'.pkl')
 with open(dataset_file, "rb") as f:
     dataset = pickle.load(f)
@@ -169,6 +181,7 @@ print("Train_Action:", action_chunks_train.shape)
 if test_split > 0.0:
     obs_chunks_test = dataset['observations_test']
     action_chunks_test = dataset['actions_test']
+    
 
 filename = env_name+'_H_'+str(H)+'_adist_'+a_dist+'_use_contrastive_'+str(use_contrastive)+'_num_categorical_interval_'+str(num_categorical_interval)+'_contrastive_ratio_'+str(contrastive_ratio)+'_margin_'+str(args.margin)+'_scale_'+str(args.scale)+'_beta_'+str(args.beta)
 
