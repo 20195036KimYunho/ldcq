@@ -2,33 +2,35 @@ import os
 
 import sys
 
-curr_folder=os.path.abspath(__file__)
-parent_folder=os.path.dirname(os.path.dirname(curr_folder))
-sys.path.append(parent_folder) 
+curr_folder = os.path.abspath(__file__)
+parent_folder = os.path.dirname(os.path.dirname(curr_folder))
+sys.path.append(parent_folder)
 
-from argparse import ArgumentParser
-
-import numpy as np
-import torch
-import random
-import gym
-import d4rl
-import matplotlib
-import matplotlib.pyplot as plt
-matplotlib.use('TkAgg')
-from mujoco_py import GlfwContext
-GlfwContext(offscreen=True)
-
+import multiprocessing as mp
+from models.skill_model import SkillModel
 from models.diffusion_models import (
     Model_mlp,
     Model_cnn_mlp,
     Model_Cond_Diffusion,
 )
-from models.skill_model import SkillModel
+from mujoco_py import GlfwContext
+import matplotlib.pyplot as plt
+import matplotlib
+import d4rl
+import gym
+import random
+import torch
+import numpy as np
+from argparse import ArgumentParser
 
-import multiprocessing as mp
+
+
+matplotlib.use('Agg')
+# GlfwContext(offscreen=True)
+
 
 ANTMAZE = plt.imread(parent_folder+'/img/maze-large.png')
+
 
 def visualize_states(state_0, states, best_state):
     plt.imshow(ANTMAZE, extent=[-6, 42, -6, 30])
@@ -41,37 +43,37 @@ def visualize_states(state_0, states, best_state):
 
 
 def q_policy(diffusion_model,
-        skill_model,
-        state_0,
-        goal_state,
-        state_mean,
-        state_std,
-        latent_mean,
-        latent_std,
-        num_parallel_envs,
-        num_diffusion_samples,
-        extra_steps,
-        planning_depth,
-        predict_noise,
-        visualize,
-        append_goals,
-        dqn_agent,
-    ):
+             skill_model,
+             state_0,
+             goal_state,
+             state_mean,
+             state_std,
+             latent_mean,
+             latent_std,
+             num_parallel_envs,
+             num_diffusion_samples,
+             extra_steps,
+             planning_depth,
+             predict_noise,
+             visualize,
+             append_goals,
+             dqn_agent,
+             ):
 
     if append_goals:
-      state_0 = torch.cat([state_0, goal_state],dim=1)
+        state_0 = torch.cat([state_0, goal_state], dim=1)
 
     state_dim = state_0.shape[1]
     state = state_0.repeat_interleave(num_diffusion_samples, 0)
-    latent,q_vals = dqn_agent.get_max_skills(state, is_eval=True)
+    latent, q_vals = dqn_agent.get_max_skills(state, is_eval=True)
     if args.state_decoder_type == 'autoregressive':
-        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
+        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
         state = state_pred.squeeze(1)
-    #state_decoder가 없으면 skip하도록
+    # state_decoder가 없으면 skip하도록
     elif args.state_decoder_type == 'none':
         pass
     else:
-        state, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim], latent)
+        state, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim], latent)
 
     best_state = torch.zeros((num_parallel_envs, state_dim)).to(args.device)
     best_latent = torch.zeros((num_parallel_envs, latent.shape[1])).to(args.device)
@@ -94,103 +96,103 @@ def q_policy(diffusion_model,
 
 
 def diffusion_prior_policy(
-        diffusion_model,
-        skill_model,
-        state_0,
-        goal_state,
-        state_mean,
-        state_std,
-        latent_mean,
-        latent_std,
-        num_parallel_envs,
-        num_diffusion_samples,
-        extra_steps,
-        planning_depth,
-        predict_noise,
-        visualize,
-        append_goals,
-        dqn_agent,
-    ):
+    diffusion_model,
+    skill_model,
+    state_0,
+    goal_state,
+    state_mean,
+    state_std,
+    latent_mean,
+    latent_std,
+    num_parallel_envs,
+    num_diffusion_samples,
+    extra_steps,
+    planning_depth,
+    predict_noise,
+    visualize,
+    append_goals,
+    dqn_agent,
+):
 
     if append_goals:
-      state_0 = torch.cat([state_0, goal_state], dim=1)
+        state_0 = torch.cat([state_0, goal_state], dim=1)
 
     latent = diffusion_model.sample_extra((state_0 - state_mean) / state_std, predict_noise=predict_noise, extra_steps=extra_steps) * latent_std + latent_mean
     return latent
 
 
 def prior_policy(
-        diffusion_model,
-        skill_model,
-        state_0,
-        goal_state,
-        state_mean,
-        state_std,
-        latent_mean,
-        latent_std,
-        num_parallel_envs,
-        num_diffusion_samples,
-        extra_steps,
-        planning_depth,
-        predict_noise,
-        visualize,
-        append_goals,
-        dqn_agent,
-    ):
+    diffusion_model,
+    skill_model,
+    state_0,
+    goal_state,
+    state_mean,
+    state_std,
+    latent_mean,
+    latent_std,
+    num_parallel_envs,
+    num_diffusion_samples,
+    extra_steps,
+    planning_depth,
+    predict_noise,
+    visualize,
+    append_goals,
+    dqn_agent,
+):
 
     if append_goals:
-      state_0 = torch.cat([state_0, goal_state], dim=1)
+        state_0 = torch.cat([state_0, goal_state], dim=1)
 
     latent, latent_prior_std = skill_model.prior(state_0)
     return latent
 
 
 def greedy_policy(
-        diffusion_model,
-        skill_model,
-        state_0,
-        goal_state,
-        state_mean,
-        state_std,
-        latent_mean,
-        latent_std,
-        num_parallel_envs,
-        num_diffusion_samples,
-        extra_steps,
-        planning_depth,
-        predict_noise,
-        visualize,
-        append_goals,
-        dqn_agent,
-    ):
-    
+    diffusion_model,
+    skill_model,
+    state_0,
+    goal_state,
+    state_mean,
+    state_std,
+    latent_mean,
+    latent_std,
+    num_parallel_envs,
+    num_diffusion_samples,
+    extra_steps,
+    planning_depth,
+    predict_noise,
+    visualize,
+    append_goals,
+    dqn_agent,
+):
+
     state_dim = state_0.shape[1]
     if append_goals:
-      state_0 = torch.cat([state_0,goal_state],dim=1)
+        state_0 = torch.cat([state_0, goal_state], dim=1)
     state = state_0.repeat_interleave(num_diffusion_samples, 0)
 
     latent_0 = diffusion_model.sample_extra((state - state_mean) / state_std, predict_noise=predict_noise, extra_steps=extra_steps) * latent_std + latent_mean
 
     if args.state_decoder_type == 'autoregressive':
-        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent_0.unsqueeze(1), evaluation=True)
-        state[:,:state_dim] = state_pred.squeeze(1)
-    #state_decoder가 없으면 skip하도록
+        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim].unsqueeze(1), None, latent_0.unsqueeze(1), evaluation=True)
+        state[:, :state_dim] = state_pred.squeeze(1)
+    # state_decoder가 없으면 skip하도록
     elif args.state_decoder_type == 'none':
         pass
     else:
-        state[:,:state_dim], _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim], latent_0)
+        state[:, :state_dim], _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim], latent_0)
 
     for depth in range(1, planning_depth):
         latent = diffusion_model.sample_extra((state - state_mean) / state_std, predict_noise=predict_noise, extra_steps=extra_steps) * latent_std + latent_mean
 
         if args.state_decoder_type == 'autoregressive':
-            state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
-            state[:,:state_dim] = state_pred.squeeze(1)
-        #state_decoder가 없으면 skip하도록
+            state_pred, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
+            state[:, :state_dim] = state_pred.squeeze(1)
+        # state_decoder가 없으면 skip하도록
         elif args.state_decoder_type == 'none':
             pass
         else:
-            state[:,:state_dim], _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim], latent)
+            state[:, :state_dim], _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim], latent)
 
     best_state = torch.zeros((num_parallel_envs, state_dim)).to(args.device)
     best_latent = torch.zeros((num_parallel_envs, latent_0.shape[1])).to(args.device)
@@ -199,7 +201,7 @@ def greedy_policy(
         start_idx = env_idx * num_diffusion_samples
         end_idx = start_idx + num_diffusion_samples
 
-        cost = torch.linalg.norm(state[start_idx : end_idx][:, :2] - goal_state[env_idx], axis=1)
+        cost = torch.linalg.norm(state[start_idx: end_idx][:, :2] - goal_state[env_idx], axis=1)
 
         min_idx = torch.argmin(cost)
 
@@ -215,53 +217,53 @@ def greedy_policy(
 
 
 def exhaustive_policy(
-        diffusion_model,
-        skill_model,
-        state_0,
-        goal_state,
-        state_mean,
-        state_std,
-        latent_mean,
-        latent_std,
-        num_parallel_envs,
-        num_diffusion_samples,
-        extra_steps,
-        planning_depth,
-        predict_noise,
-        visualize,
-        append_goals,
-        dqn_agent,
-    ):
+    diffusion_model,
+    skill_model,
+    state_0,
+    goal_state,
+    state_mean,
+    state_std,
+    latent_mean,
+    latent_std,
+    num_parallel_envs,
+    num_diffusion_samples,
+    extra_steps,
+    planning_depth,
+    predict_noise,
+    visualize,
+    append_goals,
+    dqn_agent,
+):
 
     state_dim = state_0.shape[1]
     if append_goals:
-      state_0 = torch.cat([state_0,goal_state],dim=1)
+        state_0 = torch.cat([state_0, goal_state], dim=1)
     state = state_0.repeat_interleave(num_diffusion_samples, 0)
 
     latent_0 = diffusion_model.sample_extra((state - state_mean) / state_std, predict_noise=predict_noise, extra_steps=extra_steps) * latent_std + latent_mean
 
     if args.state_decoder_type == 'autoregressive':
-        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent_0.unsqueeze(1), evaluation=True)
-        state[:,:state_dim] = state_pred.squeeze(1)
-    #state_decoder가 없으면 skip하도록
+        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim].unsqueeze(1), None, latent_0.unsqueeze(1), evaluation=True)
+        state[:, :state_dim] = state_pred.squeeze(1)
+    # state_decoder가 없으면 skip하도록
     elif args.state_decoder_type == 'none':
         pass
     else:
-        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), latent_0.unsqueeze(1))
-        state[:,:state_dim] = state_pred.squeeze(1)
+        state_pred, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim].unsqueeze(1), latent_0.unsqueeze(1))
+        state[:, :state_dim] = state_pred.squeeze(1)
 
     for depth in range(1, planning_depth):
         state = state.repeat_interleave(num_diffusion_samples, 0)
         latent = diffusion_model.sample_extra((state - state_mean) / state_std, predict_noise=predict_noise, extra_steps=extra_steps) * latent_std + latent_mean
         if args.state_decoder_type == 'autoregressive':
-            state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
-            state[:,:state_dim] = state_pred.squeeze(1)
-        #state_decoder가 없으면 skip하도록
+            state_pred, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim].unsqueeze(1), None, latent.unsqueeze(1), evaluation=True)
+            state[:, :state_dim] = state_pred.squeeze(1)
+        # state_decoder가 없으면 skip하도록
         elif args.state_decoder_type == 'none':
             pass
         else:
-            state_pred, _ = skill_model.decoder.abstract_dynamics(state[:,:state_dim].unsqueeze(1), latent.unsqueeze(1))
-            state[:,:state_dim] = state_pred.squeeze(1)
+            state_pred, _ = skill_model.decoder.abstract_dynamics(state[:, :state_dim].unsqueeze(1), latent.unsqueeze(1))
+            state[:, :state_dim] = state_pred.squeeze(1)
 
     best_state = torch.zeros((num_parallel_envs, state_dim)).to(args.device)
     best_latent = torch.zeros((num_parallel_envs, latent_0.shape[1])).to(args.device)
@@ -270,7 +272,7 @@ def exhaustive_policy(
         start_idx = env_idx * (num_diffusion_samples ** planning_depth)
         end_idx = start_idx + (num_diffusion_samples ** planning_depth)
 
-        cost = torch.linalg.norm(state[start_idx : end_idx][:, :2] - goal_state[env_idx], axis=1)
+        cost = torch.linalg.norm(state[start_idx: end_idx][:, :2] - goal_state[env_idx], axis=1)
 
         min_idx = torch.argmin(cost)
 
@@ -331,23 +333,23 @@ def eval_func(diffusion_model,
             while env_step < 1000:
 
                 best_latent = policy(
-                                diffusion_model,
-                                skill_model,
-                                state_0,
-                                goal_state,
-                                state_mean,
-                                state_std,
-                                latent_mean,
-                                latent_std,
-                                num_parallel_envs,
-                                num_diffusion_samples,
-                                extra_steps,
-                                planning_depth,
-                                predict_noise,
-                                visualize,
-                                append_goals,
-                                dqn_agent,
-                            )
+                    diffusion_model,
+                    skill_model,
+                    state_0,
+                    goal_state,
+                    state_mean,
+                    state_std,
+                    latent_mean,
+                    latent_std,
+                    num_parallel_envs,
+                    num_diffusion_samples,
+                    extra_steps,
+                    planning_depth,
+                    predict_noise,
+                    visualize,
+                    append_goals,
+                    dqn_agent,
+                )
 
                 for _ in range(exec_horizon):
                     for env_idx in range(len(envs)):
@@ -393,35 +395,41 @@ def evaluate(args):
                              policy_decoder_type=args.policy_decoder_type,
                              per_element_sigma=args.per_element_sigma,
                              conditional_prior=args.conditional_prior,
+                             num_categocical_interval=args.num_categorical_interval,
+                             use_contrastive=args.use_contrastive,
+                             contrastive_ratio=args.contrastive_ratio
                              ).to(args.device)
 
-    skill_model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename))['model_state_dict'])
+    skill_model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename))['model_state_dict'], strict=False)
     skill_model.eval()
 
-    envs = [gym.make(args.env,render_height=128,render_width=128) for _ in range(args.num_parallel_envs)]
+    envs = [gym.make(args.env, render_height=128, render_width=128) for _ in range(args.num_parallel_envs)]
 
     if not args.append_goals:
-      #state_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_states.npy"), allow_pickle=True)
-      state_mean = 0#torch.from_numpy(state_all.mean(axis=0)).to(args.device).float()
-      state_std = 1#torch.from_numpy(state_all.std(axis=0)).to(args.device).float()
+        # state_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_states.npy"), allow_pickle=True)
+        state_mean = 0  # torch.from_numpy(state_all.mean(axis=0)).to(args.device).float()
+        state_std = 1  # torch.from_numpy(state_all.std(axis=0)).to(args.device).float()
 
-      #latent_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_latents.npy"), allow_pickle=True)
-      latent_mean = 0#torch.from_numpy(latent_all.mean(axis=0)).to(args.device).float()
-      latent_std = 1#torch.from_numpy(latent_all.std(axis=0)).to(args.device).float()
+        # latent_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_latents.npy"), allow_pickle=True)
+        latent_mean = 0  # torch.from_numpy(latent_all.mean(axis=0)).to(args.device).float()
+        latent_std = 1  # torch.from_numpy(latent_all.std(axis=0)).to(args.device).float()
     else:
-      #state_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_goals_states.npy"), allow_pickle=True)
-      state_mean = 0#torch.from_numpy(state_all.mean(axis=0)).to(args.device).float()
-      state_std = 1#torch.from_numpy(state_all.std(axis=0)).to(args.device).float()
+        # state_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_goals_states.npy"), allow_pickle=True)
+        state_mean = 0  # torch.from_numpy(state_all.mean(axis=0)).to(args.device).float()
+        state_std = 1  # torch.from_numpy(state_all.std(axis=0)).to(args.device).float()
 
-      #latent_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_goals_latents.npy"), allow_pickle=True)
-      latent_mean = 0#torch.from_numpy(latent_all.mean(axis=0)).to(args.device).float()
-      latent_std = 1#torch.from_numpy(latent_all.std(axis=0)).to(args.device).float()
+        # latent_all = np.load(os.path.join(args.dataset_dir, args.skill_model_filename[:-4] + "_goals_latents.npy"), allow_pickle=True)
+        latent_mean = 0  # torch.from_numpy(latent_all.mean(axis=0)).to(args.device).float()
+        latent_std = 1  # torch.from_numpy(latent_all.std(axis=0)).to(args.device).float()
 
     diffusion_model = None
     dqn_agent = None
 
     if args.policy == 'greedy' or args.policy == 'exhaustive' or args.policy == 'q' or args.policy == 'diffusion_prior':
-        diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior_best.pt')).to(args.device)
+        if args.diffusion_checkpoint != 'best':
+            diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + f'_{args.diffusion_checkpoint}_.pt')).to(args.device)
+        else:
+            diffusion_nn_model = torch.load(os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior_best.pt')).to(args.device)
 
         diffusion_model = Model_Cond_Diffusion(
             diffusion_nn_model,
@@ -483,20 +491,21 @@ if __name__ == "__main__":
     parser = ArgumentParser()
 
     # #####해놓은 것들이 argument 잘못넣으면 안 돌아가는 것들, 돌리기 전 꼭 확인할 것
-    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2') #####
+    parser.add_argument('--env', type=str, default='antmaze-large-diverse-v2')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_evals', type=int, default=100)
     parser.add_argument('--num_parallel_envs', type=int, default=1)
     parser.add_argument('--checkpoint_dir', type=str, default=parent_folder+'/checkpoints')
     parser.add_argument('--q_checkpoint_dir', type=str, default=parent_folder+'/q_checkpoints')
-    parser.add_argument('--q_checkpoint_steps', type=int, default=0) #####
+    parser.add_argument('--q_checkpoint_steps', type=int, default=0)
     parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data')
-    parser.add_argument('--skill_model_filename', type=str) #####
-    parser.add_argument('--append_goals', type=int, default=0) #####
+    parser.add_argument('--skill_model_filename', type=str)
+    parser.add_argument('--append_goals', type=int, default=0)
 
-    parser.add_argument('--policy', type=str, default='greedy') #greedy/exhaustive/q
+    parser.add_argument('--policy', type=str, default='greedy')  # greedy/exhaustive/q
     parser.add_argument('--num_diffusion_samples', type=int, default=50)
     parser.add_argument('--diffusion_steps', type=int, default=100)
+    parser.add_argument('--diffusion_checkpoint', type=str, default='best')
     parser.add_argument('--cfg_weight', type=float, default=0.0)
     parser.add_argument('--planning_depth', type=int, default=3)
     parser.add_argument('--extra_steps', type=int, default=5)
@@ -505,9 +514,9 @@ if __name__ == "__main__":
 
     parser.add_argument('--beta', type=float, default=1.0)
     parser.add_argument('--a_dist', type=str, default='normal')
-    parser.add_argument('--encoder_type', type=str, default='gru') #####
-    parser.add_argument('--state_decoder_type', type=str, default='mlp') #####
-    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive') #####
+    parser.add_argument('--encoder_type', type=str, default='gru')
+    parser.add_argument('--state_decoder_type', type=str, default='mlp')
+    parser.add_argument('--policy_decoder_type', type=str, default='autoregressive')
     parser.add_argument('--per_element_sigma', type=int, default=1)
     parser.add_argument('--conditional_prior', type=int, default=1)
     parser.add_argument('--h_dim', type=int, default=256)
@@ -516,7 +525,10 @@ if __name__ == "__main__":
 
     parser.add_argument('--render', type=int, default=1)
     parser.add_argument('--visualize', type=int, default=0)
-
+    parser.add_argument('--num_categorical_interval', type=int, default=10)
+    parser.add_argument('--use_contrastive', type=int, default=0)
+    parser.add_argument('--contrastive_ratio', type=float, default=1.0)
+    
     args = parser.parse_args()
 
     evaluate(args)

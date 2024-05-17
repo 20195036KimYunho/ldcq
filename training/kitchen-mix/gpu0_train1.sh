@@ -1,5 +1,5 @@
 CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
-    --env antmaze-large-diverse-v2\
+    --env kitchen-mixed-v0\
     --train_diffusion_prior 0\
     --z_dim 16\
     --lr 5e-5\
@@ -14,11 +14,12 @@ CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
     --a_dist softmax\
     --beta 0.1\
     --conditional_prior 1\
-    --checkpoint_dir '/home/jovyan/ldcq/checkpoints/contrastive-antmaze-large-20'\
-    --dataset_dir '/home/jovyan/ldcq/data/contrastive-antmaze-large-20' \
+    --checkpoint_dir '/home/jovyan/ldcq/checkpoints/contrastive-kitchen-mix'\
+    --dataset_dir '/home/jovyan/ldcq/data/contrastive-kitchen-mix' \
     --use_contrastive 1 \
-    --contrastive_ratio 0.05 \
+    --contrastive_ratio 1.0 \
     --num_categorical_interval 10 \
     --append_goals 0 \
-    --horizon 20
-
+    --horizon 20\
+    --margin 0.00\
+    --scale 30

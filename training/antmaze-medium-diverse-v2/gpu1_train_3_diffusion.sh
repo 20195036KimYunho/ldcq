@@ -1,5 +1,5 @@
-CUDA_VISIBLE_DEVICES=1 python ./train_diffusion.py \
-    --env antmaze-medium-diverse-v2  \
+CUDA_VISIBLE_DEVICES=0 python ./train_diffusion.py \
+    --env antmaze-medium-diverse-v2_1 \
     --device 'cuda' \
     --n_epoch 450 \
     --lrate 1e-4 \
@@ -8,9 +8,9 @@ CUDA_VISIBLE_DEVICES=1 python ./train_diffusion.py \
     --n_hidden 512 \
     --test_split 0.0 \
     --sample_z 0 \
-    --dataset_dir '/workspace/ldcq/ldcq/data' \
-    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints' \
-    --skill_model_filename 'skill_model_antmaze-medium-diverse-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_20_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth' \
+    --dataset_dir '/home/jovyan/ldcq/data/test' \
+    --checkpoint_dir '/home/jovyan/ldcq/checkpoints/antmaze-medium-30-naive-1' \
+    --skill_model_filename 'skill_model_antmaze-medium-diverse-v2_1_encoderType(gru)_state_dec_mlp_policy_dec_autoregressive_H_30_b_0.1_conditionalp_1_zdim_16_adist_normal_testSplit_0.0_separatetest_0_getrewards_1_appendgoals_0_best.pth' \
     --append_goals 0 \
     --drop_prob 0.1 \
     --diffusion_steps 100 \

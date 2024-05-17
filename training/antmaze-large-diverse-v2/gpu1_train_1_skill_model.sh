@@ -16,9 +16,8 @@ CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
     --conditional_prior 1\
     --checkpoint_dir '/home/jovyan/ldcq/checkpoints/contrastive-antmaze-large-20'\
     --dataset_dir '/home/jovyan/ldcq/data/contrastive-antmaze-large-20' \
-    --use_contrastive 1 \
-    --contrastive_ratio 0.05 \
+    --use_contrastive 1\
+    --contrastive_ratio 0.1\
     --num_categorical_interval 10 \
     --append_goals 0 \
     --horizon 20
-

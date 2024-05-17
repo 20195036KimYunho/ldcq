@@ -7,7 +7,7 @@ CUDA_VISIBLE_DEVICES=0 python ./plan_skills_diffusion.py \
     --dataset_dir 'ldcq/data/contrastive-antmaze-large-20'\
     --q_checkpoint_dir '/home/jovyan/ldcq/q_checkpoints/antmaze-medium-30-naive-1'\
     --q_checkpoint_steps 120\
-    --skill_model_filename "antmaze-large-diverse-v2_H_20_adist_softmax_use_contrastive_0_num_categorical_interval_10_contrastive_ratio_0.0_getrewards_1_appendgoals_0_best.pth" \
+    --skill_model_filename "antmaze-large-diverse-v2_H_20_adist_softmax_use_contrastive_1_num_categorical_interval_10_contrastive_ratio_0.1_getrewards_1_appendgoals_0_best.pth" \
     --append_goals 0\
     --policy prior\
     --num_diffusion_samples 300\
@@ -30,6 +30,6 @@ CUDA_VISIBLE_DEVICES=0 python ./plan_skills_diffusion.py \
     --render 0\
     --visualize 0\
     --diffusion_checkpoint 50\
-    --use_contrastive 0 \
-    --contrastive_ratio 0.0 \
+    --use_contrastive 1 \
+    --contrastive_ratio 0.1 \
     --num_categorical_interval 10

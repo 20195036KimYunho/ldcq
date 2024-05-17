@@ -25,4 +25,5 @@ CUDA_VISIBLE_DEVICES=0 python ./collect_offline_q_learning_dataset.py \
     --per_element_sigma 1\
     --conditional_prior 1\
     --h_dim 256\
-    --z_dim 16
+    --z_dim 16 \
+    --diffusion_checkpoint 250

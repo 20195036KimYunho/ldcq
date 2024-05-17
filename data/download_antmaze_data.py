@@ -14,5 +14,5 @@ for dataset_type in ['medium-diverse', 'large-diverse']:
 	name = f'{env_name}-{dataset_type}-v2'
 	env = gym.make(name)
 	dataset = env.get_dataset()
-	with open(name+".pkl","wb") as f:
+	with open(name+"_1.pkl","wb") as f:
 		pickle.dump(dataset,f)

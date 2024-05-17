@@ -3,13 +3,13 @@ CUDA_VISIBLE_DEVICES=0 python ./train_diffusion.py \
     --device 'cuda' \
     --n_epoch 3 \
     --lrate 1e-4 \
-    --batch_size 32 \
+    --batch_size 128 \
     --net_type 'unet' \
     --n_hidden 512 \
     --test_split 0.2 \
     --sample_z 0 \
-    --checkpoint_dir '/home/yunho/ldcq/checkpoints' \
-    --dataset_dir '/home/yunho/ldcq/data' \
+    --checkpoint_dir '/home/yunho/ldcq/checkpoints/antmaze-medium-30-naive-1' \
+    --dataset_dir '/home/yunho/ldcq/data/test' \
     --skill_model_filename "skill_model_antmaze-medium-diverse-v2_encoderType(gru)_state_dec_none_policy_dec_autoregressive_H_3_b_0.05_conditionalp_1_zdim_16_adist_normal_testSplit_0.2_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
     --append_goals 0 \
     --drop_prob 0.1 \

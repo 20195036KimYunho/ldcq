@@ -1,0 +1,25 @@
+CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
+    --env hopper-medium-expert-v2\
+    --train_diffusion_prior 0\
+    --z_dim 16\
+    --lr 5e-5\
+    --separate_test_trajectories 0\
+    --test_split 0.0\
+    --get_rewards 1\
+    --num_epochs 200 \
+    --start_training_state_decoder_after 201\
+    --normalize_latent 0\
+    --policy_decoder_type autoregressive\
+    --state_decoder_type mlp\
+    --a_dist softmax\
+    --beta 0.01\
+    --conditional_prior 1\
+    --checkpoint_dir '/home/jovyan/ldcq/checkpoints/contrastive-hopper-medium-expert-10'\
+    --dataset_dir '/home/jovyan/ldcq/data/contrastive-hopper-medium-expert-10' \
+    --use_contrastive 1 \
+    --contrastive_ratio 1.0 \
+    --num_categorical_interval 20 \
+    --append_goals 0 \
+    --horizon 10\
+    --margin 0.0\
+    --scale 30

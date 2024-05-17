@@ -1,5 +1,5 @@
 CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
-    --env antmaze-large-diverse-v2\
+    --env hopper-medium-expert-v2\
     --train_diffusion_prior 0\
     --z_dim 16\
     --lr 5e-5\
@@ -12,13 +12,14 @@ CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
     --policy_decoder_type autoregressive\
     --state_decoder_type mlp\
     --a_dist softmax\
-    --beta 0.1\
+    --beta 0.01\
     --conditional_prior 1\
-    --checkpoint_dir '/home/jovyan/ldcq/checkpoints/contrastive-antmaze-large-20'\
-    --dataset_dir '/home/jovyan/ldcq/data/contrastive-antmaze-large-20' \
+    --checkpoint_dir '/home/jovyan/vol-1/ldcq/checkpoints/contrastive-hopper-medium-expert-10'\
+    --dataset_dir '/home/jovyan/vol-1/ldcq/data/contrastive-hopper-medium-expert-10' \
     --use_contrastive 1 \
-    --contrastive_ratio 0.05 \
-    --num_categorical_interval 10 \
+    --contrastive_ratio 2.0 \
+    --num_categorical_interval 5 \
     --append_goals 0 \
-    --horizon 20
-
+    --horizon 10\
+    --margin 0.0\
+    --scale 50
