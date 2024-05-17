@@ -5,9 +5,12 @@
 *__pycache__*
 *.json
 *.zip
+*.gz
+.gitattributes
 data_save/*
 diffusion1d/*
 notuse/*
 previous/*
 test/*
 packcage_cloud
+*wandb*
