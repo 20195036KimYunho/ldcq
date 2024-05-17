@@ -61,14 +61,14 @@ def collect_data(args):
                             contrastive_ratio=args.contrastive_ratio
                             ).to(args.device)
     
-    skill_model.load_state_dict(checkpoint['model_state_dict'],strict=False)
+    skill_model.load_state_dict(checkpoint['model_state_dict'])
     skill_model.eval()
 
     #locomotion data의 경우 reward까지 받아오도록 수정, maze계열은 없는게 default
     if 'halfcheetah' in args.env or 'walker2d' in args.env or 'hopper' in args.env:
-        dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals, args.get_rewards)
+        dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals, args.get_rewards, dataset_dir=args.dataset_dir)
     else:
-        dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals)
+        dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals, dataset_dir=args.dataset_dir)
 
     obs_chunks_train = dataset['observations_train']
     action_chunks_train = dataset['actions_train']

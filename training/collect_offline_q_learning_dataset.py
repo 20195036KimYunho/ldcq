@@ -54,7 +54,7 @@ def collect_data(args):
                              use_contrastive=args.use_contrastive,
                              contrastive_ratio=args.contrastive_ratio
                              ).to(args.device)
-    skill_model.load_state_dict(checkpoint['model_state_dict'], strict=False)
+    skill_model.load_state_dict(checkpoint['model_state_dict'])
     skill_model.eval()
 
     if args.do_diffusion:
@@ -76,7 +76,7 @@ def collect_data(args):
         )
         diffusion_model.eval()
 
-    dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals, get_rewards=True, cum_rewards=args.cum_rewards)
+    dataset = get_dataset(args.env, args.horizon, args.stride, 0.0, args.append_goals, get_rewards=True, cum_rewards=args.cum_rewards, dataset_dir=args.dataset_dir)
 
     obs_chunks_train = dataset['observations_train']
     action_chunks_train = dataset['actions_train']

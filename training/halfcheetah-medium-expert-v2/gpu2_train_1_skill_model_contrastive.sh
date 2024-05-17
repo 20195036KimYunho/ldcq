@@ -1,7 +1,7 @@
-CUDA_VISIBLE_DEVICES=1 python ./train_skills.py \
+CUDA_VISIBLE_DEVICES=3 python ./train_skills.py \
     --env halfcheetah-medium-expert-v2\
     --train_diffusion_prior 0\
-    --z_dim 16\
+    --z_dim 64\
     --lr 5e-5\
     --separate_test_trajectories 0\
     --test_split 0.0\
@@ -20,7 +20,6 @@ CUDA_VISIBLE_DEVICES=1 python ./train_skills.py \
     --contrastive_ratio 0.5 \
     --num_categorical_interval 10 \
     --append_goals 0 \
-    --horizon 5\
-    --margin 0.1\
+    --horizon 20\
+    --margin 0.05\
     --scale 10
-

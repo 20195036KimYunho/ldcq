@@ -58,7 +58,7 @@ conda activate ldcq
 
 ```
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirement.txt
 ```
 
 ## Requirements (pip)
@@ -71,11 +71,14 @@ ipdb
 
 mujoco-py==2.1.2.14
 gym==0.12.1
-
-"cython<3"
 PyOpenGL==3.1.1a1
 patchelf
-"protobuf<3.20"
+```
+
+additionally,
+```
+pip install "cython<3"
+pip install "protobuf<3.20"
 ```
 
 ## Dataset

@@ -548,7 +548,7 @@ class GenerativeModel(nn.Module):
 
 class SkillModel(nn.Module):
     def __init__(self,state_dim,a_dim,z_dim,h_dim,horizon,a_dist='normal',beta=1.0,fixed_sig=None,encoder_type='gru',state_decoder_type='mlp',policy_decoder_type='mlp',
-                 per_element_sigma=True,conditional_prior=True,train_diffusion_prior=False,normalize_latent=False,num_categocical_interval=10,use_contrastive=False,contrastive_ratio=1.0):
+                 per_element_sigma=True,conditional_prior=True,train_diffusion_prior=False,normalize_latent=False,num_categocical_interval=10,use_contrastive=False,contrastive_ratio=1.0,margin=0.1,scale=30):
         super(SkillModel, self).__init__()
 
         self.state_dim = state_dim # state dimension
@@ -566,6 +566,8 @@ class SkillModel(nn.Module):
         self.contrastive_ratio = contrastive_ratio
         self.z_dim = z_dim
         self.h_dim = h_dim
+        self.margin=margin
+        self.scale=scale
         
         if encoder_type == 'gru':
             self.encoder = GRUEncoder(state_dim,a_dim,z_dim,h_dim,normalize_latent=normalize_latent)
@@ -592,7 +594,7 @@ class SkillModel(nn.Module):
             )
         
         if self.a_dist =='softmax' and self.use_contrastive:
-            self.contrastive_a = [MarginCosineProduct(z_dim, 2*num_categocical_interval+1).cuda() for _ in range(self.a_dim)]
+            self.contrastive_a = [MarginCosineProduct(z_dim, 2*num_categocical_interval+1,s=self.scale,m=self.margin).cuda() for _ in range(self.a_dim)]
             # self.contrastive_a_0 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
             # self.contrastive_a_1 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
             # self.contrastive_a_2 = MarginCosineProduct(z_dim, 2*num_categocical_interval+1)
@@ -769,11 +771,11 @@ class SkillModel(nn.Module):
             # logit_a = self.contrastive_a(z_tiled, a_reshape)
             # contrastive_loss_a = criterion(logit_a, a_reshape)
 
-            contrastive_loss = self.contrastive_ratio * contrastive_loss_a
+            contrastive_loss = contrastive_loss_a
         else:
             contrastive_loss = 0.0
         
-        loss_tot = a_loss + self.beta * kl_loss + diffusion_loss + contrastive_loss
+        loss_tot = a_loss + self.beta * kl_loss + diffusion_loss + self.contrastive_ratio * contrastive_loss
 
         if state_decoder:
             loss_tot += s_T_loss

@@ -9,7 +9,7 @@ CUDA_VISIBLE_DEVICES=5 python ./plan_skills_diffusion_franka.py \
     --dataset_dir '/workspace/ldcq/ldcq/data/contrastive-walker2d-medium-expert-v2-10' \
     --skill_model_filename "walker2d-medium-expert-v2_H_10_adist_softmax_use_contrastive_0_num_categorical_interval_10_contrastive_ratio_0.0_getrewards_1_appendgoals_0_best.pth" \
     --append_goals 0\
-    --policy prior\
+    --policy diffusion_prior\
     --num_diffusion_samples 10\
     --diffusion_steps 200\
     --cfg_weight 0.0\

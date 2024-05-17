@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=5 python ./train_q_net.py \
+CUDA_VISIBLE_DEVICES=7 python ./train_q_net.py \
     --env walker2d-medium-expert-v2 \
     --device 'cuda' \
     --n_epoch 300\
@@ -6,7 +6,7 @@ CUDA_VISIBLE_DEVICES=5 python ./train_q_net.py \
     --batch_size 128\
     --net_type 'unet'\
     --n_hidden 512\
-    --test_split 0.0\
+    --test_split 0.1\
     --sample_z 0\
     --per_buffer 1\
     --sample_max_latents 1\
@@ -15,7 +15,7 @@ CUDA_VISIBLE_DEVICES=5 python ./train_q_net.py \
     --alpha 0.7\
     --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/contrastive-walker2d-medium-expert-v2-10'\
     --dataset_dir '/workspace/ldcq/ldcq/data/contrastive-walker2d-medium-expert-v2-10' \
-    --skill_model_filename "skill_model_halfcheetah-expert-v2_encoderType(gru)_state_dec_mlp_policy_dec_autoregressive_H_10_b_0.05_conditionalp_1_zdim_16_adist_normal_testSplit_0.1_separatetest_0_getrewards_1_appendgoals_0_best.pth" \
+    --skill_model_filename "walker2d-medium-expert-v2_H_10_adist_softmax_use_contrastive_1_num_categorical_interval_10_contrastive_ratio_0.1_getrewards_1_appendgoals_0_best.pth" \
     --do_diffusion 1 \
     --drop_prob 0.0 \
     --diffusion_steps 200\

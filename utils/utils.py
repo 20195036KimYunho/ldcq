@@ -63,8 +63,8 @@ def chunks(obs,actions,H,stride):
     return torch.stack(obs_chunks),torch.stack(action_chunks)
 
 
-def get_dataset(env_name, horizon, stride, test_split=0.2, append_goals=False, get_rewards=False, separate_test_trajectories=False, cum_rewards=True):
-    dataset_file = parent_folder+'/data/'+env_name+'.pkl'
+def get_dataset(env_name, horizon, stride, test_split=0.2, append_goals=False, get_rewards=False, separate_test_trajectories=False, cum_rewards=True,dataset_dir=parent_folder+'/data/'):
+    dataset_file = os.path.join(dataset_dir,env_name+'.pkl')
     
     with open(dataset_file, "rb") as f:
         dataset = pickle.load(f)

@@ -105,6 +105,8 @@ parser.add_argument('--dataset_dir', type=str, default=parent_folder+'/data/')
 parser.add_argument('--num_categorical_interval', type=int, default=10)
 parser.add_argument('--use_contrastive', type=int, default=0)
 parser.add_argument('--contrastive_ratio', type=float, default=1.0)
+parser.add_argument('--margin', type=float, default=1.0)
+parser.add_argument('--scale', type=int, default=30)
 
 args = parser.parse_args()
 
@@ -120,7 +122,7 @@ n_epochs = args.num_epochs
 test_split = args.test_split
 a_dist = args.a_dist  # 'normal' # 'tanh_normal' or 'softmax'
 encoder_type = 'gru'  # 'transformer' #'state_sequence'
-state_decoder_type = args.state_decoder_type
+state_decoder_type = None if args.state_decoder_type=="none" else args.state_decoder_type
 policy_decoder_type = args.policy_decoder_type
 load_from_checkpoint = False
 per_element_sigma = True
@@ -156,7 +158,7 @@ a_dim = actions.shape[1]
 N_train = int((1-test_split)*N)
 N_test = N - N_train
 
-dataset = get_dataset(env_name, H, stride, test_split, get_rewards=args.get_rewards, separate_test_trajectories=args.separate_test_trajectories, append_goals=args.append_goals)
+dataset = get_dataset(env_name, H, stride, test_split, get_rewards=args.get_rewards, separate_test_trajectories=args.separate_test_trajectories, append_goals=args.append_goals, dataset_dir=dataset_dir)
 
 obs_chunks_train = dataset['observations_train']
 action_chunks_train = dataset['actions_train']
@@ -168,7 +170,7 @@ if test_split > 0.0:
     obs_chunks_test = dataset['observations_test']
     action_chunks_test = dataset['actions_test']
 
-filename = env_name+'_H_'+str(H)+'_adist_'+a_dist+'_use_contrastive_'+str(use_contrastive)+'_num_categorical_interval_'+str(num_categorical_interval)+'_contrastive_ratio_'+str(contrastive_ratio)+'_getrewards_'+str(args.get_rewards)+'_appendgoals_'+str(args.append_goals)
+filename = env_name+'_H_'+str(H)+'_adist_'+a_dist+'_use_contrastive_'+str(use_contrastive)+'_num_categorical_interval_'+str(num_categorical_interval)+'_contrastive_ratio_'+str(contrastive_ratio)+'_margin_'+str(args.margin)+'_scale_'+str(args.scale)+'_beta_'+str(args.beta)
 
 # filename = 'skill_model_'+env_name+'_encoderType('+encoder_type+')_state_dec_'+str(state_decoder_type)+'_policy_dec_'+str(policy_decoder_type)+'_H_'+str(H)+'_b_'+str(beta)+'_conditionalp_'+str(conditional_prior)+'_zdim_'+str(z_dim) + \
 #     '_adist_'+a_dist+'_testSplit_'+str(test_split)+'_separatetest_'+str(args.separate_test_trajectories)+'_getrewards_'+str(args.get_rewards)+'_appendgoals_'+str(args.append_goals)
@@ -187,7 +189,9 @@ model = SkillModel(state_dim,
                    state_decoder_type=state_decoder_type, policy_decoder_type=policy_decoder_type,
                    per_element_sigma=per_element_sigma, conditional_prior=conditional_prior, train_diffusion_prior=train_diffusion_prior, 
                    normalize_latent=args.normalize_latent,num_categocical_interval=num_categorical_interval,use_contrastive=use_contrastive,
-                   contrastive_ratio=contrastive_ratio
+                   contrastive_ratio=contrastive_ratio,
+                   margin=args.margin,
+                   scale=args.scale
                    ).cuda()
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
 

@@ -23,7 +23,7 @@ from models.diffusion_models import (
     Model_cnn_mlp,
     Model_Cond_Diffusion,
 )
-from models.skill_model_copy import SkillModel
+from models.skill_model import SkillModel
 
 import multiprocessing as mp
 

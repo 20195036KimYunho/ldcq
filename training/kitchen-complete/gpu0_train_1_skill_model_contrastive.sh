@@ -1,5 +1,5 @@
-CUDA_VISIBLE_DEVICES=1 python ./train_skills.py \
-    --env halfcheetah-medium-expert-v2\
+CUDA_VISIBLE_DEVICES=0 python ./train_skills.py \
+    --env kitchen-complete-v0\
     --train_diffusion_prior 0\
     --z_dim 16\
     --lr 5e-5\
@@ -14,13 +14,12 @@ CUDA_VISIBLE_DEVICES=1 python ./train_skills.py \
     --a_dist softmax\
     --beta 0.1\
     --conditional_prior 1\
-    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/contrastive-halfcheetah-medium-expert-20'\
-    --dataset_dir '/workspace/ldcq/ldcq/data/contrastive-halfcheetah-medium-expert-20' \
+    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/contrastive-kitchen-complete'\
+    --dataset_dir '/workspace/ldcq/ldcq/data/contrastive-kitchen-complete' \
     --use_contrastive 1 \
     --contrastive_ratio 0.5 \
     --num_categorical_interval 10 \
     --append_goals 0 \
-    --horizon 5\
-    --margin 0.1\
+    --horizon 20\
+    --margin 0.05\
     --scale 10
-

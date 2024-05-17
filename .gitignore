@@ -1,6 +1,13 @@
 *.npy
+*.pkl
 *.pt
 *.pth
 *__pycache__*
 *.json
 *.zip
+data_save/*
+diffusion1d/*
+notuse/*
+previous/*
+test/*
+packcage_cloud

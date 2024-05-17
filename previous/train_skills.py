@@ -89,6 +89,7 @@ parser.add_argument('--num_epochs', type=int, default=50000)
 parser.add_argument('--start_training_state_decoder_after', type=int, default=0)
 parser.add_argument('--normalize_latent', type=int, default=0)
 parser.add_argument('--append_goals', type=int, default=0)
+parser.add_argument('--margin', type=float, default=0.1)
 args = parser.parse_args()
 
 batch_size = 128  # default 128
@@ -109,7 +110,7 @@ load_from_checkpoint = False
 per_element_sigma = True
 start_training_state_decoder_after = args.start_training_state_decoder_after
 train_diffusion_prior = False
-
+margin=args.margin
 beta = args.beta  # 1.0 # 0.1, 0.01, 0.001
 conditional_prior = args.conditional_prior  # True
 
