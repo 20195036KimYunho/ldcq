@@ -91,10 +91,7 @@ def train(args):
                        'diffusion_steps': args.diffusion_steps,
                        'skill_model_filename': args.skill_model_filename,
                        'normalize_latent': args.normalize_latent,
-                       'schedule': args.schedule,
-                        'use_contrastive': args.use_contrastive,
-                        'num_categorical_interval': args.num_categorical_interval,
-                        'contrastive_ratio': args.contrastive_ratio
+                       'schedule': args.schedule
                        }
                )
     torch_data_train = PriorDataset(
@@ -218,10 +215,6 @@ if __name__ == "__main__":
     parser.add_argument('--predict_noise', type=int, default=0)
     parser.add_argument('--normalize_latent', type=int, default=0)
     parser.add_argument('--schedule', type=str, default='linear')
-    
-    parser.add_argument('--num_categorical_interval', type=int, default=10)
-    parser.add_argument('--use_contrastive', type=int, default=0)
-    parser.add_argument('--contrastive_ratio', type=float, default=1.0)
     args = parser.parse_args()
 
     train(args)
