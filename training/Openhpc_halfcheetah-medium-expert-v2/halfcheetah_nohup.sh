@@ -1,13 +1,15 @@
 <1단계 - train_skills>
-nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu0_train_1_skill_model_contrastive.sh > ./log/Openhpc_gpu0_05.17/gpu0_1.log 2>&1 &
-nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu1_train_1_skill_model_contrastive.sh > ./log/Openhpc_gpu1_05.17/gpu1_1.log 2>&1 &
-nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu2_train_1_skill_model_contrastive.sh > ./log/Openhpc_gpu2_05.17/gpu2_1.log 2>&1 &
-nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu3_train_1_skill_model_contrastive.sh > ./log/Openhpc_gpu3_05.17/gpu3_1.log 2>&1 &
-
-nohup ./Openhpc_4/4_2/Openhpc4_gpu2_train_1_skill_model.sh > ./log/Openhpc4_gpu2_05.16/gpu2_1.log 2>&1 &
-nohup ./Openhpc_4/4_3/Openhpc4_gpu3_train_1_skill_model.sh > ./log/Openhpc4_gpu3_05.16/gpu3_1.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu0_train_1_skill_model_contrastive.sh > ./log/halfcheetah_gpu0_05.17/gpu0_1.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu1_train_1_skill_model_contrastive.sh > ./log/halfcheetah_gpu1_05.17/gpu1_1.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu2_train_1_skill_model_contrastive.sh > ./log/halfcheetah_gpu2_05.17/gpu2_1.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu3_train_1_skill_model_contrastive.sh > ./log/halfcheetah_gpu3_05.17/gpu3_1.log 2>&1 &
 
 <2단계 - collect_diffusion_data>
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu0_train_2_collect_diffusion_data_contrastive.sh > ./log/halfcheetah_gpu0_05.17/gpu0_2.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu1_train_2_collect_diffusion_data_contrastive.sh > ./log/halfcheetah_gpu1_05.17/gpu1_2.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu2_train_2_collect_diffusion_data_contrastive.sh > ./log/halfcheetah_gpu2_05.17/gpu2_2.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu3_train_2_collect_diffusion_data_contrastive.sh > ./log/halfcheetah_gpu3_05.17/gpu3_2.log 2>&1 &
+
 nohup ./Openhpc4_gpu0_train_2_collect_diffusion_data.sh > ./log/gpu0_05.11/gpu0_2.log 2>&1 &
 nohup ./Openhpc4_gpu1_train_2_collect_diffusion_data.sh > ./log/gpu1_05.11/gpu1_2.log 2>&1 &
 

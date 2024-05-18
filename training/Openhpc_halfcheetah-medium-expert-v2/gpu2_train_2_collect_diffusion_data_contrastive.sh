@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=1 python ./collect_diffusion_data.py \
+CUDA_VISIBLE_DEVICES=2 python ./collect_diffusion_data.py \
     --env halfcheetah-medium-expert-v2 \
     --device 'cuda' \
     --skill_model_filename 'halfcheetah-medium-expert-v2_H_20_adist_softmax_use_contrastive_1_num_categorical_interval_10_contrastive_ratio_0.05_getrewards_1_appendgoals_0_best.pth'\
@@ -16,13 +16,12 @@ CUDA_VISIBLE_DEVICES=1 python ./collect_diffusion_data.py \
     --h_dim 256 \
     --z_dim 16 \
     --beta 0.01 \
-    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/gpu1_halfcheetah-medium-expert'\
-    --dataset_dir '/workspace/ldcq/ldcq/data/gpu1_halfcheetah-medium-expert' \
+    --checkpoint_dir '/workspace/ldcq/ldcq/checkpoints/gpu2_halfcheetah-medium-expert'\
+    --dataset_dir '/workspace/ldcq/ldcq/data/gpu2_halfcheetah-medium-expert' \
     --use_contrastive 1 \
     --contrastive_ratio 0.4 \
     --num_categorical_interval 10 \
     --append_goals 0 \
-    --horizon 10 \
+    --horizon 5 \
     --margin 0.4 \
-    --scale 30
-
+    --scale 50
