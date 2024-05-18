@@ -1,5 +1,5 @@
 CUDA_VISIBLE_DEVICES=1 python ./train_diffusion.py \
-    --env halfcheetah-medium-expert-v2  \
+    --env walker2d-medium-expert-v2 \
     --device 'cuda' \
     --n_epoch 450 \
     --lrate 1e-4 \
@@ -8,8 +8,8 @@ CUDA_VISIBLE_DEVICES=1 python ./train_diffusion.py \
     --n_hidden 512 \
     --test_split 0.0 \
     --sample_z 0 \
-    --checkpoint_dir '/home/jovyan/beomi/jaehyun/ldcq/checkpoints/gpu1_halfcheetah-medium-expert'\
-    --dataset_dir '/home/jovyan/beomi/jaehyun/ldcq/data/gpu1_halfcheetah-medium-expert' \
+    --checkpoint_dir '/home/jovyan/beomi/jaehyun/ldcq/checkpoints/gpu1_walker2d-medium-expert' \
+    --dataset_dir '/home/jovyan/beomi/jaehyun/ldcq/data/gpu1_walker2d-medium-expert' \
     --skill_model_filename 'halfcheetah-medium-expert-v2_H_20_adist_softmax_use_contrastive_1_num_categorical_interval_10_contrastive_ratio_0.05_getrewards_1_appendgoals_0_best.pth'\
     --append_goals 0 \
     --drop_prob 0.1 \

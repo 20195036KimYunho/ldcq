@@ -10,12 +10,11 @@ nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu1_train_2_collect_diffusion_data
 nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu2_train_2_collect_diffusion_data_contrastive.sh > ./log/halfcheetah_gpu2_05.17/gpu2_2.log 2>&1 &
 nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu3_train_2_collect_diffusion_data_contrastive.sh > ./log/halfcheetah_gpu3_05.17/gpu3_2.log 2>&1 &
 
-nohup ./Openhpc4_gpu0_train_2_collect_diffusion_data.sh > ./log/gpu0_05.11/gpu0_2.log 2>&1 &
-nohup ./Openhpc4_gpu1_train_2_collect_diffusion_data.sh > ./log/gpu1_05.11/gpu1_2.log 2>&1 &
-
 <3단계 - train_diffusion>
-nohup ./Openhpc4_gpu0_train_3_diffusion.sh > ./log/gpu0_05.11/gpu0_3.log 2>&1 &
-nohup ./Openhpc4_gpu1_train_3_diffusion.sh > ./log/gpu1_05.11/gpu1_3.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu0_train_3_diffusion_contrastive.sh > ./log/halfcheetah_gpu0_05.17/gpu0_3.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu1_train_3_diffusion_contrastive.sh > ./log/halfcheetah_gpu1_05.17/gpu1_3.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu2_train_3_diffusion_contrastive.sh > ./log/halfcheetah_gpu2_05.17/gpu2_3.log 2>&1 &
+nohup ./Openhpc_halfcheetah-medium-expert-v2/gpu3_train_3_diffusion_contrastive.sh > ./log/halfcheetah_gpu3_05.17/gpu3_3.log 2>&1 &
 
 <4단계 - collect_offline_q_learning_dataset>
 nohup ./Openhpc4_gpu0_train_4_collect_q_learning.sh > ./log/gpu0_05.11/gpu0_4.log 2>&1 &
