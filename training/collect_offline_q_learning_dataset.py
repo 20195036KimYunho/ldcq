@@ -52,7 +52,9 @@ def collect_data(args):
                              conditional_prior=args.conditional_prior,
                              num_categocical_interval=args.num_categorical_interval,
                              use_contrastive=args.use_contrastive,
-                             contrastive_ratio=args.contrastive_ratio
+                             contrastive_ratio=args.contrastive_ratio,
+                             margin=args.margin,
+                             scale=args.scale
                              ).to(args.device)
     skill_model.load_state_dict(checkpoint['model_state_dict'])
     skill_model.eval()
@@ -201,6 +203,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_categorical_interval', type=int, default=10)
     parser.add_argument('--use_contrastive', type=int, default=0)
     parser.add_argument('--contrastive_ratio', type=float, default=1.0)
+    parser.add_argument('--margin', type=float, default=1.0)
+    parser.add_argument('--scale', type=int, default=30)
     args = parser.parse_args()
 
     collect_data(args)
