@@ -14,3 +14,4 @@ previous/*
 test/*
 packcage_cloud
 *wandb*
+training/log/*
