@@ -177,7 +177,11 @@ def train(args):
                     # pbar.set_description(f"test loss: {loss_ep/n_batch:.4f}")
                     wandb.log({"train_diffusion/test_loss": loss_ep/n_batch, "epoch": ep})
 
-            if loss_ep < best_test_loss:
+            if ep % 50 == 0 or ep == args.n_epoch-1:
+                checkpoint_path = os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4]+'_'+str(ep)+'_'+'.pt')
+                torch.save(nn_model, checkpoint_path)
+                
+            elif loss_ep < best_test_loss:
                 best_test_loss = loss_ep
                 torch.save(nn_model, os.path.join(args.checkpoint_dir, args.skill_model_filename[:-4] + '_diffusion_prior_best.pt'))
         
