@@ -14,4 +14,4 @@ previous/*
 test/*
 packcage_cloud
 *wandb*
-*.swp
+training/log/*

@@ -254,13 +254,13 @@ if test_split > 0.0:
 train_loader = DataLoader(
     inputs_train,
     batch_size=batch_size,
-    num_workers=4,
+    num_workers=0,      # 원래 4
     shuffle=True)
 if test_split > 0.0:
     test_loader = DataLoader(
         inputs_test,
         batch_size=batch_size,
-        num_workers=4)
+        num_workers=0)  # 원래 4
 
 min_test_loss = 10**10
 min_test_s_T_loss = 10**10
